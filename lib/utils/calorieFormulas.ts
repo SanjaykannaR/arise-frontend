@@ -65,19 +65,19 @@ export function calculateMacros(details: PersonalDetails): CalculationResults {
   if (goal === "lose_fat") {
     caloriesTarget = tdee - 500;
   } else if (goal === "build_muscle") {
-    caloriesTarget = tdee + 250;
+    caloriesTarget = tdee + 275;
   }
 
   // Enforce absolute minimum healthy calories (e.g. 1200 kcal)
   caloriesTarget = Math.max(caloriesTarget, 1200);
 
-  // 4. Calculate Macro Grams based on standard ratios:
+  // 4. Calculate Macro Grams based on backend ratios:
   // Protein: 30% of total calories (4 kcal/g)
-  // Carbs: 40% of total calories (4 kcal/g)
-  // Fat: 30% of total calories (9 kcal/g)
+  // Carbs: 42.5% of total calories (4 kcal/g)
+  // Fat: 27.5% of total calories (9 kcal/g)
   const proteinKcal = caloriesTarget * 0.30;
-  const carbsKcal = caloriesTarget * 0.40;
-  const fatKcal = caloriesTarget * 0.30;
+  const carbsKcal = caloriesTarget * 0.425;
+  const fatKcal = caloriesTarget * 0.275;
 
   const proteinGrams = Math.round(proteinKcal / 4);
   const carbsGrams = Math.round(carbsKcal / 4);

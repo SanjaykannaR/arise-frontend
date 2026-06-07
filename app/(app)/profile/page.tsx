@@ -8,7 +8,8 @@ import PageHeader from "@/components/layout/PageHeader";
 import ConfirmDeleteDialog from "@/components/shared/ConfirmDeleteDialog";
 import { useUserProfile, useUpdateUserProfile, useResetDatabase } from "@/lib/queries/hooks";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function ProfilePage() {
 
   // Reset confirmation modal state
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   if (isLoading || !user) {
     return <LoadingSpinner fullPage />;
@@ -28,8 +30,10 @@ export default function ProfilePage() {
     updateProfileMutation.mutate({ unitPreference: nextUnit });
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem("arise_logged_in");
+    localStorage.removeItem("arise_user_profile");
     router.push("/login");
   };
 
@@ -50,9 +54,9 @@ export default function ProfilePage() {
           </div>
           <div className="flex flex-col">
             <h3 className="text-base font-bold text-white leading-tight">
-              {user.name}
+              {user.name || "Alexander"}
             </h3>
-            <span className="text-xs text-slate-500 mt-0.5">{user.email}</span>
+            <span className="text-xs text-slate-500 mt-0.5">{user.email || "alex@arise.fit"}</span>
           </div>
         </div>
 
@@ -115,6 +119,18 @@ export default function ProfilePage() {
             </span>
           </button>
 
+          {/* Terms & Conditions */}
+          <button
+            onClick={() => setShowTermsModal(true)}
+            className="w-full py-4 px-5 flex items-center justify-between text-slate-300 hover:text-white hover:bg-white/[0.02] transition-all text-left"
+          >
+            <div className="flex items-center gap-3">
+              <Shield className="w-4 h-4 text-slate-400" />
+              <span className="text-sm font-semibold">Terms & Conditions</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+          </button>
+
           {/* Reset Mock Database */}
           <button
             onClick={() => setShowResetModal(true)}
@@ -133,7 +149,7 @@ export default function ProfilePage() {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
           onClick={handleLogout}
-          className="w-full py-4 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-slate-300 hover:text-red-400 font-bold rounded-2xl text-sm transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 border border-red-500/15 hover:border-red-500/30 text-red-400 font-bold rounded-2xl text-sm transition-all duration-300 flex items-center justify-center gap-2"
         >
           <LogOut className="w-4 h-4" />
           Log Out
@@ -149,6 +165,54 @@ export default function ProfilePage() {
         description="This will permanently delete all logged workouts, meals, journal entries, and reset consistency streaks back to default seeds. This action is irreversible."
         confirmText="Reset All Data"
       />
+
+      {/* Terms & Conditions Modal */}
+      <AnimatePresence>
+        {showTermsModal && (
+          <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowTermsModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-sm glass-panel rounded-3xl p-6 relative z-10 space-y-4 text-left border border-white/10"
+            >
+              <div className="flex items-center gap-2.5 text-primary">
+                <Shield className="w-5 h-5 fill-current/10" />
+                <h3 className="text-base font-extrabold text-white">Terms & Conditions</h3>
+              </div>
+
+              <div className="max-h-60 overflow-y-auto text-xs text-slate-400 space-y-3 leading-relaxed pr-1 scrollbar">
+                <p className="font-bold text-slate-300">1. Agreement to Terms</p>
+                <p>By using Arise (Get Fit or Die), you agree to these Terms. If you do not agree, do not use the application.</p>
+                
+                <p className="font-bold text-slate-300">2. Disclaimer of Liability</p>
+                <p>This software is a fitness and diet tracking helper. It does not constitute professional medical advice, diagnosis, or treatment. Always consult a healthcare professional before starting any new diet or training regime.</p>
+                
+                <p className="font-bold text-slate-300">3. Privacy and Data</p>
+                <p>All data collected in this version is saved locally within your browser storage. We do not store or transmit your metrics or credentials to external database servers.</p>
+                
+                <p className="font-bold text-slate-300">4. Consistency Rules</p>
+                <p>Habits are verified daily. Streaks require completing training sets or logging macros. Recover responsibly!</p>
+              </div>
+
+              <button
+                onClick={() => setShowTermsModal(false)}
+                className="w-full py-3 bg-primary hover:bg-primary-light text-slate-950 font-bold rounded-2xl text-xs transition-all duration-300 neon-glow"
+              >
+                Acknowledge Terms
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -49,7 +49,7 @@ const DEFAULT_USER: UserProfile = {
   isOnboarded: false, // will require onboarding on first use
 };
 
-const DEFAULT_WORKOUT_PLANS: WorkoutPlan[] = [
+export const DEFAULT_WORKOUT_PLANS: WorkoutPlan[] = [
   {
     id: "plan-mon",
     dayOfWeek: "Monday",

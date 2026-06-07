@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Activity, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { supabase } from "@/lib/supabaseClient";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -24,25 +26,50 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // Simulate network delay
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
       localStorage.setItem("arise_logged_in", "true");
       setLoading(false);
       router.push("/");
-    }, 1000);
+    } catch (err: any) {
+      setError(err?.message || "Failed to log in");
+      setLoading(false);
+    }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("arise_logged_in", "true");
+    setError("");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to sign in with Google");
       setLoading(false);
-      router.push("/");
-    }, 800);
+    }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-center p-5">
+    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-12">
       <div className="w-full max-w-sm flex flex-col items-center">
         {/* Logo / Header */}
         <div className="flex flex-col items-center mb-10 text-center">

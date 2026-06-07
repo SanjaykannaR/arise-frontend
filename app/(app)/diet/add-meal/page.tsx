@@ -7,6 +7,8 @@ import PageHeader from "@/components/layout/PageHeader";
 import { useAddMeal } from "@/lib/queries/hooks";
 import { getTodayString } from "@/lib/utils/dateHelpers";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
+import { apiClient } from "@/lib/utils/apiClient";
 
 export default function AddMealPage() {
   const router = useRouter();
@@ -30,41 +32,92 @@ export default function AddMealPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageFile(reader.result as string);
-        triggerAiAnalysis();
+        const base64Data = reader.result as string;
+        setImageFile(base64Data);
+        triggerAiAnalysis(base64Data);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const triggerAiAnalysis = () => {
+  const triggerAiAnalysis = async (base64Data: string) => {
     setAnalyzing(true);
     setAiStep(0);
 
     const steps = [
       "Compressing image payload...",
+      "Uploading to storage...",
       "Analyzing plate visual dimensions...",
-      "Identifying food items (Salmon, Avocado, Salad)...",
-      "Estimating portion weights...",
+      "Identifying food items...",
       "Calculating macronutrient density splits...",
     ];
 
     let currentStep = 0;
     const interval = setInterval(() => {
       currentStep++;
-      if (currentStep < steps.length) {
+      if (currentStep < steps.length - 1) {
         setAiStep(currentStep);
-      } else {
-        clearInterval(interval);
-        // Complete analysis and fill form
-        setMealName("Salmon Avocado Salad");
-        setCalories(450);
-        setProtein(38);
-        setCarbs(12);
-        setFat(28);
-        setAnalyzing(false);
       }
-    }, 600);
+    }, 1000);
+
+    try {
+      const base64ToBlob = (base64DataUrl: string) => {
+        const arr = base64DataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+      };
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User session not found");
+
+      const blob = base64ToBlob(base64Data);
+      const fileName = `${user.id}/${Date.now()}.jpg`;
+
+      // Upload to supabase storage bucket
+      const { data, error } = await supabase.storage
+        .from('meal-images')
+        .upload(fileName, blob, {
+          contentType: blob.type,
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('meal-images')
+        .getPublicUrl(fileName);
+
+      setAiStep(2); // Analyzing visual dimensions
+
+      // Call API
+      const res = await apiClient.post<any>("/api/meal/estimate-from-image", {
+        image_url: publicUrl,
+      });
+
+      clearInterval(interval);
+      setAiStep(4); // splits done
+
+      if (res && res.estimation) {
+        const est = res.estimation;
+        setMealName(est.meal_name || "Estimated Meal");
+        setCalories(Math.round(est.calories) || 0);
+        setProtein(Math.round(est.protein_g) || 0);
+        setCarbs(Math.round(est.carb_g) || 0);
+        setFat(Math.round(est.fat_g) || 0);
+      }
+    } catch (err: any) {
+      console.error("AI estimation error:", err);
+      alert("AI meal estimation failed: " + (err.message || err));
+      clearInterval(interval);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

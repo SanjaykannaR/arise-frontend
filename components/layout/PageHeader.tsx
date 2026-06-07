@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Search } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, Search, Flame } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface PageHeaderProps {
@@ -10,6 +11,7 @@ interface PageHeaderProps {
   subtitle?: string;
   showBackButton?: boolean;
   rightAction?: React.ReactNode;
+  streakCount?: number;
 }
 
 export default function PageHeader({
@@ -17,6 +19,7 @@ export default function PageHeader({
   subtitle,
   showBackButton = false,
   rightAction,
+  streakCount,
 }: PageHeaderProps) {
   const router = useRouter();
 
@@ -48,6 +51,16 @@ export default function PageHeader({
 
       {rightAction ? (
         rightAction
+      ) : streakCount !== undefined ? (
+        <Link href="/streak">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-1.5 bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/25 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-500 transition-colors"
+          >
+            <Flame className="w-4 h-4 fill-current" />
+            <span>{streakCount}</span>
+          </motion.button>
+        </Link>
       ) : (
         !showBackButton && (
           <motion.button

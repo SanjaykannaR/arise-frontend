@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Activity, User, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { supabase } from "@/lib/supabaseClient";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -29,37 +31,55 @@ export default function SignUpPage() {
     setLoading(true);
     setError("");
 
-    // Simulate network delay
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
       localStorage.setItem("arise_logged_in", "true");
       
-      // Save name to user profile storage
+      // Save name to user profile storage temporarily for onboarding fallback
       const defaultProfile = {
-        id: "user-1",
+        id: data.user?.id || "user-1",
         name: name,
         email: email,
         weight: 70,
         height: 175,
         age: 25,
-        sex: "male",
-        activityLevel: "sedentary",
-        goal: "maintain",
+        sex: "male" as const,
+        activityLevel: "sedentary" as const,
+        goal: "maintain" as const,
         dailyCalorieTarget: 2000,
         proteinTargetG: 150,
         carbTargetG: 200,
         fatTargetG: 67,
-        unitPreference: "metric",
+        unitPreference: "metric" as const,
         isOnboarded: false,
       };
       localStorage.setItem("arise_user_profile", JSON.stringify(defaultProfile));
-      
+
       setLoading(false);
       router.push("/");
-    }, 1000);
+    } catch (err: any) {
+      setError(err?.message || "Failed to sign up");
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-center p-5">
+    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-12">
       <div className="w-full max-w-sm flex flex-col items-center">
         {/* Logo / Header */}
         <div className="flex flex-col items-center mb-8 text-center">

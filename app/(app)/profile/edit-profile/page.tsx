@@ -30,13 +30,13 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setName(user.name);
-      setSex(user.sex);
-      setAge(user.age);
-      setWeightKg(user.weight);
-      setWeightLbs(Math.round(kgToLbs(user.weight)));
-      setHeightCm(user.height);
-      const { feet, inches } = cmToFeetInches(user.height);
+      setName(user.name || "");
+      setSex(user.sex || "male");
+      setAge(user.age || 25);
+      setWeightKg(user.weight || 70);
+      setWeightLbs(Math.round(kgToLbs(user.weight || 70)));
+      setHeightCm(user.height || 175);
+      const { feet, inches } = cmToFeetInches(user.height || 175);
       setHeightFt(feet);
       setHeightIn(inches);
     }

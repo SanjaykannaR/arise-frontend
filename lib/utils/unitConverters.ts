@@ -16,10 +16,10 @@ export function lbsToKg(lbs: number): number {
  * Converts centimeters to feet and inches.
  */
 export function cmToFeetInches(cm: number): { feet: number; inches: number } {
-  const totalInches = cm / 2.54;
+  const totalInches = Math.round(cm / 2.54);
   const feet = Math.floor(totalInches / 12);
-  const inches = Math.round(totalInches % 12);
-  return { feet, inches: inches === 12 ? 0 : inches };
+  const inches = totalInches % 12;
+  return { feet, inches };
 }
 
 /**

@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { calculateMacros, CalculationResults, PersonalDetails } from "@/lib/utils/calorieFormulas";
+import { useCompleteOnboarding } from "@/lib/queries/hooks";
 
 export default function ResultsPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [results, setResults] = useState<CalculationResults | null>(null);
+  const completeOnboardingMutation = useCompleteOnboarding();
 
   useEffect(() => {
     const dataStr = localStorage.getItem("arise_user_profile");
@@ -39,21 +41,19 @@ export default function ResultsPage() {
   const handleFinish = () => {
     if (!profile || !results) return;
 
-    // Combine profile with results and finalize onboarding
-    const finalProfile = {
-      ...profile,
-      dailyCalorieTarget: results.caloriesTarget,
-      proteinTargetG: results.proteinGrams,
-      carbTargetG: results.carbsGrams,
-      fatTargetG: results.fatGrams,
-      isOnboarded: true,
-    };
-
-    localStorage.setItem("arise_user_profile", JSON.stringify(finalProfile));
-    localStorage.setItem("arise_logged_in", "true");
-
-    // Redirect to dashboard
-    router.push("/dashboard");
+    completeOnboardingMutation.mutate({
+      weight: profile.weight,
+      height: profile.height,
+      age: profile.age,
+      sex: profile.sex,
+      activityLevel: profile.activityLevel,
+      goal: profile.goal,
+      name: profile.name,
+    }, {
+      onSuccess: () => {
+        router.push("/dashboard");
+      }
+    });
   };
 
   if (!results || !profile) {
@@ -179,10 +179,17 @@ export default function ResultsPage() {
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
           onClick={handleFinish}
+          disabled={completeOnboardingMutation.isPending}
           className="flex-1 py-4 bg-primary hover:bg-primary-light text-slate-950 font-bold rounded-2xl text-sm transition-all duration-300 neon-glow flex items-center justify-center gap-2"
         >
-          Finish & Enter Dashboard
-          <Check className="w-4 h-4" />
+          {completeOnboardingMutation.isPending ? (
+            <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <>
+              Finish & Enter Dashboard
+              <Check className="w-4 h-4" />
+            </>
+          )}
         </motion.button>
       </div>
     </div>

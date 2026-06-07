@@ -33,14 +33,20 @@ export default function BottomNavBar() {
   ];
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-50">
-      <nav className="apple-dock rounded-full py-3 px-6 flex justify-between items-center relative">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[76%] max-w-xs z-50">
+      <nav className="apple-dock rounded-full py-3 px-4 flex justify-between items-center relative">
         {navItems.map((item) => {
           // Check if active: matches exact or prefix (except dashboard which must match exactly)
-          const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname?.startsWith(item.href);
+          let isActive = false;
+          if (item.href === "/dashboard") {
+            isActive = pathname === "/dashboard";
+          } else if (item.href === "/profile") {
+            isActive = pathname === "/profile" || pathname === "/profile/" || pathname?.startsWith("/profile/edit-goals");
+          } else if (item.href === "/profile/edit-profile") {
+            isActive = pathname?.startsWith("/profile/edit-profile");
+          } else {
+            isActive = pathname?.startsWith(item.href);
+          }
 
           return (
             <Link
