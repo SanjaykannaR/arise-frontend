@@ -55,21 +55,21 @@ export const apiClient = {
     return request<T>(endpoint, { method: "GET", params });
   },
 
-  post<T>(endpoint: string, body?: any): Promise<T> {
+  post<T>(endpoint: string, body?: unknown): Promise<T> {
     return request<T>(endpoint, {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   },
 
-  put<T>(endpoint: string, body?: any): Promise<T> {
+  put<T>(endpoint: string, body?: unknown): Promise<T> {
     return request<T>(endpoint, {
       method: "PUT",
       body: body ? JSON.stringify(body) : undefined,
     });
   },
 
-  patch<T>(endpoint: string, body?: any): Promise<T> {
+  patch<T>(endpoint: string, body?: unknown): Promise<T> {
     return request<T>(endpoint, {
       method: "PATCH",
       body: body ? JSON.stringify(body) : undefined,

@@ -41,8 +41,8 @@ export default function LoginPage() {
       localStorage.setItem("arise_logged_in", "true");
       setLoading(false);
       router.push("/");
-    } catch (err: any) {
-      setError(err?.message || "Failed to log in");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to log in");
       setLoading(false);
     }
   };
@@ -62,8 +62,8 @@ export default function LoginPage() {
         setError(error.message);
         setLoading(false);
       }
-    } catch (err: any) {
-      setError(err?.message || "Failed to sign in with Google");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to sign in with Google");
       setLoading(false);
     }
   };
