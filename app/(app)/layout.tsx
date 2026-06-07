@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AppShell from "@/components/layout/AppShell";
+import BottomNavBar from "@/components/layout/BottomNavBar";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
-export default function RootPage() {
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    // Check if the user is authenticated and if they have completed onboarding
     const isLoggedIn = localStorage.getItem("arise_logged_in") === "true";
     const userProfile = localStorage.getItem("arise_user_profile");
 
@@ -21,7 +23,7 @@ export default function RootPage() {
       try {
         const parsed = JSON.parse(userProfile);
         if (parsed.isOnboarded) {
-          router.replace("/dashboard");
+          setAuthorized(true);
         } else {
           router.replace("/onboarding/personal-details");
         }
@@ -33,5 +35,18 @@ export default function RootPage() {
     }
   }, [router]);
 
-  return <LoadingSpinner fullPage />;
+  if (!authorized) {
+    return <LoadingSpinner fullPage />;
+  }
+
+  return (
+    <AppShell>
+      {/* Scrollable content container */}
+      <div className="flex flex-col flex-1 w-full relative">
+        {children}
+      </div>
+      {/* Floating apple bottom dock navigation */}
+      <BottomNavBar />
+    </AppShell>
+  );
 }
