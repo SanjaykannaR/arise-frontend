@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,9 +13,24 @@ interface ActivityOption {
 
 export default function ActivityLevelPage() {
   const router = useRouter();
+
+  // 1. Initialize state by reading directly from localStorage
   const [activityLevel, setActivityLevel] = useState<
     "sedentary" | "lightly_active" | "moderately_active" | "very_active"
-  >("moderately_active");
+  >(() => {
+    if (typeof window !== "undefined") {
+      const data = localStorage.getItem("arise_user_profile");
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.activityLevel) return parsed.activityLevel;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return "moderately_active"; // Fallback default value
+  });
 
   const options: ActivityOption[] = [
     {
@@ -40,18 +55,7 @@ export default function ActivityLevelPage() {
     },
   ];
 
-  // Load existing selection if any
-  useEffect(() => {
-    const data = localStorage.getItem("arise_user_profile");
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.activityLevel) setActivityLevel(parsed.activityLevel);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
+  // 2. Note: The entire useEffect block has been safely removed!
 
   const handleNext = () => {
     const existingStr = localStorage.getItem("arise_user_profile");
