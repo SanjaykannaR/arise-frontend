@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -76,7 +76,7 @@ export default function PersonalDetailsPage() {
       setHeightIn(inches);
     } else {
       setWeightKg(Math.round(lbsToKg(weightLbs) * 10) / 10);
-      const { feet, inches } = cmToFeetInches(heightCm); // Keeps fallback or standard heights consistent
+      cmToFeetInches(heightCm); // Keeps fallback or standard heights consistent
       setHeightCm(feetInchesToCm(heightFt, heightIn));
     }
   };

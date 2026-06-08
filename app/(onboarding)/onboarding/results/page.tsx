@@ -9,7 +9,7 @@ import { useCompleteOnboarding } from "@/lib/queries/hooks";
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<PersonalDetails & { name?: string } | null>(() => {
+  const [profile] = useState<PersonalDetails & { name?: string } | null>(() => {
     if (typeof window === "undefined") return null;
 
     const dataStr = localStorage.getItem("arise_user_profile");

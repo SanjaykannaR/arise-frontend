@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, ArrowLeft, TrendingDown, RefreshCw, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
