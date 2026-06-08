@@ -72,8 +72,8 @@ export default function SignUpPage() {
 
       setLoading(false);
       router.push("/");
-    } catch (err: any) {
-      setError(err?.message || "Failed to sign up");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to sign up");
       setLoading(false);
     }
   };
