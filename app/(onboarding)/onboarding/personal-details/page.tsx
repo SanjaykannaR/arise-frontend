@@ -9,21 +9,60 @@ import { kgToLbs, lbsToKg, cmToFeetInches, feetInchesToCm } from "@/lib/utils/un
 export default function PersonalDetailsPage() {
   const router = useRouter();
 
-  // Unit Preferences
-  const [unit, setUnit] = useState<"metric" | "imperial">("metric");
+  // Helper to safely get local storage on client side
+  const getSavedProfile = () => {
+    if (typeof window !== "undefined") {
+      const data = localStorage.getItem("arise_user_profile");
+      if (data) {
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return null;
+  };
 
-  // Inputs
-  const [sex, setSex] = useState<"male" | "female">("male");
-  const [age, setAge] = useState(25);
+  const savedProfile = getSavedProfile();
+
+  // 1. Initialize ALL states directly from the saved profile or fallbacks
+  const [unit, setUnit] = useState<"metric" | "imperial">(
+    savedProfile?.unitPreference || "metric"
+  );
   
-  // Weight representation
-  const [weightKg, setWeightKg] = useState(70);
-  const [weightLbs, setWeightLbs] = useState(154);
+  const [sex, setSex] = useState<"male" | "female">(
+    savedProfile?.sex || "male"
+  );
+  
+  const [age, setAge] = useState<number>(
+    savedProfile?.age || 25
+  );
 
-  // Height representation
-  const [heightCm, setHeightCm] = useState(175);
-  const [heightFt, setHeightFt] = useState(5);
-  const [heightIn, setHeightIn] = useState(9);
+  // Weight initialization
+  const [weightKg, setWeightKg] = useState<number>(
+    savedProfile?.weight || 70
+  );
+  const [weightLbs, setWeightLbs] = useState<number>(
+    savedProfile?.weight ? Math.round(kgToLbs(savedProfile.weight)) : 154
+  );
+
+  // Height initialization
+  const [heightCm, setHeightCm] = useState<number>(
+    savedProfile?.height || 175
+  );
+  const [heightFt, setHeightFt] = useState<number>(() => {
+    if (savedProfile?.height) {
+      return cmToFeetInches(savedProfile.height).feet;
+    }
+    return 5;
+  });
+  const [heightIn, setHeightIn] = useState<number>(() => {
+    if (savedProfile?.height) {
+      return cmToFeetInches(savedProfile.height).inches;
+    }
+    return 9;
+  });
 
   // Sync inputs on unit change
   const handleUnitToggle = (val: "metric" | "imperial") => {
@@ -37,34 +76,12 @@ export default function PersonalDetailsPage() {
       setHeightIn(inches);
     } else {
       setWeightKg(Math.round(lbsToKg(weightLbs) * 10) / 10);
+      const { feet, inches } = cmToFeetInches(heightCm); // Keeps fallback or standard heights consistent
       setHeightCm(feetInchesToCm(heightFt, heightIn));
     }
   };
 
-  // On mount, load existing data if available
-  useEffect(() => {
-    const data = localStorage.getItem("arise_user_profile");
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.sex) setSex(parsed.sex);
-        if (parsed.age) setAge(parsed.age);
-        if (parsed.weight) {
-          setWeightKg(parsed.weight);
-          setWeightLbs(Math.round(kgToLbs(parsed.weight)));
-        }
-        if (parsed.height) {
-          setHeightCm(parsed.height);
-          const { feet, inches } = cmToFeetInches(parsed.height);
-          setHeightFt(feet);
-          setHeightIn(inches);
-        }
-        if (parsed.unitPreference) setUnit(parsed.unitPreference);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
+  // 2. Note: The entire useEffect block has been completely removed!
 
   const handleNext = () => {
     // Resolve standard metric values to save
@@ -91,7 +108,6 @@ export default function PersonalDetailsPage() {
 
     router.push("/onboarding/activity-level");
   };
-
   return (
     <div className="flex flex-col flex-1 justify-between gap-6">
       <div className="space-y-6">

@@ -48,26 +48,29 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
-      });
+  setLoading(true);
+  setError("");
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        // Change this to target your Next.js API callback route
+        redirectTo: `${window.location.origin}/api/auth/callback`,
+      },
+    });
 
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to sign in with Google");
+    if (error) {
+      setError(error.message);
       setLoading(false);
     }
-  };
-
+    // NOTE: Do not set loading to false if there is no error!
+    // The browser is about to redirect to Google's login screen, 
+    // so you want the loading spinner to stay active until the page unloads.
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Failed to sign in with Google");
+    setLoading(false);
+  }
+};
   return (
     <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-12">
       <div className="w-full max-w-sm flex flex-col items-center">

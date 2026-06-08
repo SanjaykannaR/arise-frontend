@@ -14,7 +14,24 @@ interface GoalOption {
 
 export default function GoalPage() {
   const router = useRouter();
-  const [goal, setGoal] = useState<"lose_fat" | "maintain" | "build_muscle">("lose_fat");
+
+  // 1. Initialize state by reading directly from localStorage on the client side
+  const [goal, setGoal] = useState<"lose_fat" | "maintain" | "build_muscle">(
+    () => {
+      if (typeof window !== "undefined") {
+        const data = localStorage.getItem("arise_user_profile");
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.goal) return parsed.goal;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+      return "lose_fat"; // Fallback default value if local storage is empty
+    }
+  );
 
   const options: GoalOption[] = [
     {
@@ -37,18 +54,7 @@ export default function GoalPage() {
     },
   ];
 
-  // Load existing selection if any
-  useEffect(() => {
-    const data = localStorage.getItem("arise_user_profile");
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.goal) setGoal(parsed.goal);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, []);
+  // 2. Note: The entire useEffect block has been safely removed!
 
   const handleNext = () => {
     const existingStr = localStorage.getItem("arise_user_profile");

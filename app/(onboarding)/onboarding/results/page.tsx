@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -9,34 +9,45 @@ import { useCompleteOnboarding } from "@/lib/queries/hooks";
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
-  const [results, setResults] = useState<CalculationResults | null>(null);
-  const completeOnboardingMutation = useCompleteOnboarding();
+  const [profile, setProfile] = useState<PersonalDetails & { name?: string } | null>(() => {
+    if (typeof window === "undefined") return null;
 
-  useEffect(() => {
     const dataStr = localStorage.getItem("arise_user_profile");
-    if (dataStr) {
-      try {
-        const parsed = JSON.parse(dataStr);
-        // Make sure we have the required keys to run calculations
-        if (parsed.weight && parsed.height && parsed.age && parsed.sex && parsed.activityLevel && parsed.goal) {
-          const details: PersonalDetails = {
-            weight: parsed.weight,
-            height: parsed.height,
-            age: parsed.age,
-            sex: parsed.sex,
-            activityLevel: parsed.activityLevel,
-            goal: parsed.goal,
-          };
-          const calcResults = calculateMacros(details);
-          setResults(calcResults);
-          setProfile(parsed);
-        }
-      } catch (e) {
-        console.error(e);
+    if (!dataStr) return null;
+
+    try {
+      const parsed = JSON.parse(dataStr);
+      if (
+        parsed.weight &&
+        parsed.height &&
+        parsed.age &&
+        parsed.sex &&
+        parsed.activityLevel &&
+        parsed.goal
+      ) {
+        return parsed as PersonalDetails & { name?: string };
       }
+    } catch (e) {
+      console.error(e);
     }
-  }, []);
+
+    return null;
+  });
+
+  const results = useMemo<CalculationResults | null>(() => {
+    if (!profile) return null;
+
+    return calculateMacros({
+      weight: profile.weight,
+      height: profile.height,
+      age: profile.age,
+      sex: profile.sex,
+      activityLevel: profile.activityLevel,
+      goal: profile.goal,
+    });
+  }, [profile]);
+
+  const completeOnboardingMutation = useCompleteOnboarding();
 
   const handleFinish = () => {
     if (!profile || !results) return;
