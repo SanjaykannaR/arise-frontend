@@ -45,13 +45,7 @@ function DashboardContent() {
     return () => clearInterval(timer);
   }, []);
 
-  // Track scroll position for FAB sticky behavior
-  const [isAtTop, setIsAtTop] = useState(true);
-  useEffect(() => {
-    const handleScroll = () => setIsAtTop(window.scrollY < 60);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
 
   if (userLoading || dietLoading || streakLoading || !user) {
     return <LoadingSpinner fullPage />;
@@ -77,13 +71,16 @@ function DashboardContent() {
   const isLoggedToday = logs?.find((l) => l.date === todayStrForLog && l.completed);
 
   return (
-    <div className="flex flex-col flex-1 pb-10 relative">
+    <div className="pb-10 relative">
       <PageHeader
         title="Arise"
         subtitle={`Welcome back, ${user.name || "Alexander"}`}
         streakCount={streak?.currentStreak || 0}
         onSearch={() => setSearchOpen(true)}
       />
+
+      {/* Search Overlay (top of page) */}
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       <div className="px-5 space-y-6">
         {/* Switcher tabs row */}
@@ -238,8 +235,19 @@ function DashboardContent() {
                 </div>
               )}
 
-              {/* Spacer for FAB */}
-              <div className="h-16" />
+              {/* Add Workout FAB */}
+              <div className="flex justify-end pt-2 pb-6">
+                <motion.button
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowAddModal(true)}
+                  className="w-14 h-14 rounded-full bg-primary text-slate-950 shadow-[0_0_20px_rgba(139,227,70,0.4)] flex items-center justify-center"
+                >
+                  <Plus className="w-7 h-7" />
+                </motion.button>
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -338,25 +346,8 @@ function DashboardContent() {
         </AnimatePresence>
       </div>
 
-      {/* FAB - Add Workout Button (sticky at top, absolute on scroll) */}
-      {activeTab === "workout" && (
-        <motion.button
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowAddModal(true)}
-          className={`${isAtTop ? "fixed bottom-20" : "absolute bottom-24"} right-5 z-40 w-14 h-14 rounded-full bg-primary text-slate-950 shadow-[0_0_20px_rgba(139,227,70,0.4)] flex items-center justify-center`}
-        >
-          <Plus className="w-7 h-7" />
-        </motion.button>
-      )}
-
       {/* Add Workout Modal */}
       <AddWorkoutModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
-
-      {/* Search Overlay */}
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }

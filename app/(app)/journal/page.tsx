@@ -63,6 +63,9 @@ export default function JournalPage() {
       {/* Page Header */}
       <PageHeader title="Fitness Journal" subtitle="Track your mental & physical recovery" onSearch={() => setSearchOpen(true)} />
 
+      {/* Search Overlay (top of page) */}
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
       <div className="px-5 space-y-6">
         {/* Today's Reflection Editor Card */}
         <div className="glass-panel rounded-3xl p-5 space-y-4">
@@ -140,9 +143,6 @@ export default function JournalPage() {
           )}
         </div>
       </div>
-
-      {/* Search Overlay */}
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Save feedback toast */}
       <AnimatePresence>
