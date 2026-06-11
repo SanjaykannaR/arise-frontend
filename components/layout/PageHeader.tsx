@@ -10,16 +10,20 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   showBackButton?: boolean;
+  onBack?: () => void;
   rightAction?: React.ReactNode;
   streakCount?: number;
+  onSearch?: () => void;
 }
 
 export default function PageHeader({
   title,
   subtitle,
   showBackButton = false,
+  onBack,
   rightAction,
   streakCount,
+  onSearch,
 }: PageHeaderProps) {
   const router = useRouter();
 
@@ -29,7 +33,7 @@ export default function PageHeader({
         {showBackButton && (
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => router.back()}
+            onClick={onBack || (() => router.back())}
             className="p-2.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white"
             aria-label="Go back"
           >
@@ -49,29 +53,32 @@ export default function PageHeader({
         </div>
       </div>
 
-      {rightAction ? (
-        rightAction
-      ) : streakCount !== undefined ? (
-        <Link href="/streak">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/25 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-500 transition-colors"
-          >
-            <Flame className="w-4 h-4 fill-current" />
-            <span>{streakCount}</span>
-          </motion.button>
-        </Link>
-      ) : (
-        !showBackButton && (
+      <div className="flex items-center gap-2">
+        {rightAction ? (
+          rightAction
+        ) : streakCount !== undefined ? (
+          <Link href="/streak">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1.5 bg-orange-500/10 hover:bg-orange-500/15 border border-orange-500/25 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-500 transition-colors"
+            >
+              <Flame className="w-4 h-4 fill-current" />
+              <span>{streakCount}</span>
+            </motion.button>
+          </Link>
+        ) : null}
+
+        {onSearch && (
           <motion.button
             whileTap={{ scale: 0.9 }}
+            onClick={onSearch}
             className="p-3 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white"
             aria-label="Search"
           >
             <Search className="w-4 h-4" />
           </motion.button>
-        )
-      )}
+        )}
+      </div>
     </header>
   );
 }

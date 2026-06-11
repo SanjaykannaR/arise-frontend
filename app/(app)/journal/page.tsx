@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { BookOpen, Calendar, Edit3, Save, CheckCircle2 } from "lucide-react";
+import { BookOpen, Calendar, Edit3, Save, CheckCircle2, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
+import SearchOverlay from "@/components/dashboard/SearchOverlay";
 import { useJournalEntries, useSaveJournalEntry } from "@/lib/queries/hooks";
 import { getTodayString, formatDateDisplay } from "@/lib/utils/dateHelpers";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -18,6 +19,8 @@ export default function JournalPage() {
   // Today's entry editing state
   const [content, setContent] = useState("");
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Sync today's entry content on load
   useEffect(() => {
@@ -41,6 +44,10 @@ export default function JournalPage() {
         setShowSaveToast(true);
         setTimeout(() => setShowSaveToast(false), 2000);
       },
+      onError: () => {
+        setShowErrorToast(true);
+        setTimeout(() => setShowErrorToast(false), 3000);
+      },
     });
   };
 
@@ -54,7 +61,7 @@ export default function JournalPage() {
   return (
     <div className="flex flex-col flex-1 pb-24 relative">
       {/* Page Header */}
-      <PageHeader title="Fitness Journal" subtitle="Track your mental & physical recovery" />
+      <PageHeader title="Fitness Journal" subtitle="Track your mental & physical recovery" onSearch={() => setSearchOpen(true)} />
 
       <div className="px-5 space-y-6">
         {/* Today's Reflection Editor Card */}
@@ -134,6 +141,9 @@ export default function JournalPage() {
         </div>
       </div>
 
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
       {/* Save feedback toast */}
       <AnimatePresence>
         {showSaveToast && (
@@ -145,6 +155,17 @@ export default function JournalPage() {
           >
             <CheckCircle2 className="w-3.5 h-3.5 fill-current" />
             Journal Entry Committed!
+          </motion.div>
+        )}
+        {showErrorToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 20, x: "-50%" }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg z-50 flex items-center gap-1.5"
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            Failed to save. Check your connection and try again.
           </motion.div>
         )}
       </AnimatePresence>

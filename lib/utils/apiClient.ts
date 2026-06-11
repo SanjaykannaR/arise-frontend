@@ -37,9 +37,8 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     let errorMessage = "An error occurred while fetching the data.";
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
+      errorMessage = errorData.error?.message || errorData.message || errorData.error || errorMessage;
     } catch {
-      // JSON parsing failed, use status text
       errorMessage = response.statusText || errorMessage;
     }
     throw new Error(errorMessage);

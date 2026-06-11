@@ -78,6 +78,8 @@ function DietPageContent() {
       <PageHeader
         title="Diet Tracker"
         subtitle="Log your daily meals & macros"
+        showBackButton
+        onBack={() => router.push("/dashboard?tab=diet")}
         rightAction={
           <Link href="/diet/history">
             <motion.button

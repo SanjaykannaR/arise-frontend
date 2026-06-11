@@ -31,7 +31,11 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // proceed with local cleanup even if remote signOut fails
+    }
     localStorage.removeItem("arise_logged_in");
     localStorage.removeItem("arise_user_profile");
     router.push("/login");

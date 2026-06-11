@@ -1,35 +1,7 @@
 "use client";
 
 import React from "react";
-
-interface MacroBarProps {
-  label: string;
-  current: number;
-  goal: number;
-  colorClass: string;
-  textColorClass: string;
-}
-
-function MacroBar({ label, current, goal, colorClass, textColorClass }: MacroBarProps) {
-  const percentage = Math.min((current / Math.max(goal, 1)) * 100, 100);
-
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between items-center text-xs">
-        <span className="font-bold text-slate-400">{label}</span>
-        <span className="font-semibold text-slate-500">
-          <strong className={`font-bold ${textColorClass}`}>{current}</strong> / {goal}g
-        </span>
-      </div>
-      <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-        <div
-          className={`h-full rounded-full ${colorClass}`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-    </div>
-  );
-}
+import MacroRing from "./MacroRing";
 
 interface MacroSummaryBarProps {
   protein: number;
@@ -49,27 +21,30 @@ export default function MacroSummaryBar({
   fatGoal,
 }: MacroSummaryBarProps) {
   return (
-    <div className="space-y-3">
-      <MacroBar
+    <div className="flex items-center justify-around gap-2">
+      <MacroRing
         label="Protein"
         current={protein}
         goal={proteinGoal}
-        colorClass="bg-protein"
-        textColorClass="text-blue-400"
+        gradientFrom="#3B82F6"
+        gradientTo="#60a5fa"
+        glowColor="rgba(59,130,246,0.5)"
       />
-      <MacroBar
-        label="Carbohydrates"
+      <MacroRing
+        label="Carbs"
         current={carbs}
         goal={carbsGoal}
-        colorClass="bg-carbs"
-        textColorClass="text-amber-400"
+        gradientFrom="#F59E0B"
+        gradientTo="#fbbf24"
+        glowColor="rgba(245,158,11,0.5)"
       />
-      <MacroBar
+      <MacroRing
         label="Fat"
         current={fat}
         goal={fatGoal}
-        colorClass="bg-fat"
-        textColorClass="text-red-400"
+        gradientFrom="#EF4444"
+        gradientTo="#f87171"
+        glowColor="rgba(239,68,68,0.5)"
       />
     </div>
   );

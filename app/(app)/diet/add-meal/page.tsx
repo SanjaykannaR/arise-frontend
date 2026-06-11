@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Image as ImageIcon, Sparkles, Save, Info, Loader2 } from "lucide-react";
+import { Camera, Image as ImageIcon, Sparkles, Save, Info, Loader2, MessageSquareText } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import { useAddMeal } from "@/lib/queries/hooks";
 import { getTodayString } from "@/lib/utils/dateHelpers";
@@ -17,11 +17,15 @@ export default function AddMealPage() {
 
   // Form Fields State
   const [mealName, setMealName] = useState("");
-  const [calories, setCalories] = useState<number>(300);
-  const [protein, setProtein] = useState<number>(20);
-  const [carbs, setCarbs] = useState<number>(30);
-  const [fat, setFat] = useState<number>(10);
+  const [calories, setCalories] = useState<number>(0);
+  const [protein, setProtein] = useState<number>(0);
+  const [carbs, setCarbs] = useState<number>(0);
+  const [fat, setFat] = useState<number>(0);
   
+  // Text-based estimation
+  const [foodDescription, setFoodDescription] = useState("");
+  const [textEstimating, setTextEstimating] = useState(false);
+
   // Image logging states
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -120,6 +124,31 @@ export default function AddMealPage() {
     }
   };
 
+  const estimateFromText = async () => {
+    if (!foodDescription.trim()) return;
+    setTextEstimating(true);
+
+    try {
+      const res = await apiClient.post<any>("/api/meal/estimate-from-text", {
+        description: foodDescription,
+      });
+
+      if (res && res.estimation) {
+        const est = res.estimation;
+        setMealName(est.meal_name || "Estimated Meal");
+        setCalories(Math.round(est.calories) || 0);
+        setProtein(Math.round(est.protein_g) || 0);
+        setCarbs(Math.round(est.carb_g) || 0);
+        setFat(Math.round(est.fat_g) || 0);
+      }
+    } catch (err: any) {
+      console.error("Text estimation error:", err);
+      alert("Text estimation failed: " + (err.message || err));
+    } finally {
+      setTextEstimating(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!mealName.trim()) return;
@@ -136,7 +165,7 @@ export default function AddMealPage() {
 
     addMealMutation.mutate(newMeal, {
       onSuccess: () => {
-        router.push("/diet");
+        router.push("/dashboard?tab=diet");
       },
     });
   };
@@ -155,6 +184,35 @@ export default function AddMealPage() {
       <PageHeader title="Log Meal" showBackButton />
 
       <div className="px-5 space-y-6">
+        {/* Text-based meal estimation */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-slate-400">Describe Your Meal (AI Text Estimation)</label>
+          <div className="glass-panel rounded-2xl p-4 space-y-3 border border-white/5">
+            <textarea
+              value={foodDescription}
+              onChange={(e) => setFoodDescription(e.target.value)}
+              placeholder="e.g. 200g grilled chicken breast, 150g basmati rice, 100g steamed broccoli with 1 tbsp olive oil"
+              className="w-full h-24 bg-white/5 border border-white/10 rounded-2xl p-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 resize-none leading-relaxed"
+            />
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onClick={estimateFromText}
+              disabled={textEstimating || !foodDescription.trim()}
+              className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-2xl text-sm transition-all flex items-center justify-center gap-2"
+            >
+              {textEstimating ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <MessageSquareText className="w-4 h-4 text-primary" />
+                  Estimate with AI
+                </>
+              )}
+            </motion.button>
+          </div>
+        </div>
+
         {/* Visual camera/photo upload cards */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-slate-400">Meal Visual Logging (AI)</label>
