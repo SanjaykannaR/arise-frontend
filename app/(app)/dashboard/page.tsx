@@ -74,7 +74,6 @@ function DashboardContent() {
     <div className="pb-10 relative">
       <PageHeader
         title="Arise"
-        subtitle={`Welcome back, ${user.name || "Alexander"}`}
         streakCount={streak?.currentStreak || 0}
         onSearch={() => setSearchOpen(true)}
       />

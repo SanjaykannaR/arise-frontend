@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Search, Flame } from "lucide-react";
@@ -28,7 +29,7 @@ export default function PageHeader({
   const router = useRouter();
 
   return (
-    <header className="w-full flex items-center justify-between py-6 px-5 bg-transparent">
+    <header className="w-full flex items-center justify-between py-0 px-5 bg-transparent">
       <div className="flex items-center gap-3">
         {showBackButton && (
           <motion.button
@@ -47,9 +48,18 @@ export default function PageHeader({
               {subtitle}
             </span>
           )}
-          <h1 className="text-2xl font-bold text-white tracking-tight text-hero-glow">
-            {title}
-          </h1>
+          {title === "Arise" ? (
+            <Image
+              src="/arise-logo.png"
+              alt="Arise logo"
+              width={140}
+              height={40}
+            />
+          ) : (
+            <h1 className="text-2xl font-bold text-white tracking-tight text-hero-glow">
+              {title}
+            </h1>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Activity, User, Mail, Lock } from "lucide-react";
@@ -86,9 +87,15 @@ export default function SignUpPage() {
           <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 neon-glow">
             <Activity className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2 text-hero-glow">
-            ARISE
-          </h1>
+          <div className="mb-2">
+            <Image
+              src="/arise-logo.png"
+              alt="Arise logo"
+              width={160}
+              height={40}
+              className="mx-auto"
+            />
+          </div>
           <p className="text-sm text-slate-500 uppercase tracking-widest font-semibold">
             Get Fit or Die
           </p>
