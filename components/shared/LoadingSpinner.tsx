@@ -14,74 +14,69 @@ export default function LoadingSpinner({
   fullPage = false,
 }: LoadingSpinnerProps) {
   const iconSize = size === "sm" ? 20 : size === "lg" ? 48 : 32;
-  const halfDistance = iconSize * 0.7;
+  const dist = iconSize * 1.4;
+
+  const slideIn = {
+    x: [dist, 0, 0, dist],
+    opacity: [0, 1, 1, 0],
+  };
+  const slideInReverse = {
+    x: [-dist, 0, 0, -dist],
+    opacity: [0, 1, 1, 0],
+  };
+
+  const transition = {
+    duration: 3.5,
+    repeat: Infinity,
+    ease: "easeInOut",
+    times: [0, 0.25, 0.7, 1],
+  };
+
+  const glow = {
+    scale: [0, 1.5, 1.5, 0],
+    opacity: [0, 0.5, 0.5, 0],
+  };
 
   const spinner = (
     <div className="flex flex-col items-center justify-center gap-3">
-      <div className="relative flex items-center justify-center"
-        style={{ width: iconSize * 3, height: iconSize * 2 }}
+      <div
+        className="relative flex items-center justify-center"
+        style={{ width: iconSize * 4, height: iconSize * 2.5 }}
       >
-        {/* Dumbbell - slides from left to center, back to left */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <motion.div
+            animate={slideInReverse}
+            transition={transition}
+          >
+            <Dumbbell
+              size={iconSize}
+              className="text-primary drop-shadow-[0_0_8px_rgba(139,227,70,0.5)]"
+            />
+          </motion.div>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <motion.div
+            animate={slideIn}
+            transition={transition}
+          >
+            <UtensilsCrossed
+              size={iconSize}
+              className="text-primary drop-shadow-[0_0_8px_rgba(139,227,70,0.5)]"
+            />
+          </motion.div>
+        </div>
         <motion.div
-          className="absolute"
-          animate={{
-            x: [-halfDistance, 0, 0, -halfDistance],
-            opacity: [0.4, 1, 1, 0.4],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.7, 1],
-          }}
-        >
-          <Dumbbell
-            size={iconSize}
-            className="text-primary filter drop-shadow-[0_0_6px_rgba(139,227,70,0.4)]"
-          />
-        </motion.div>
-
-        {/* Utensils - slides from right to center, back to right */}
-        <motion.div
-          className="absolute"
-          animate={{
-            x: [halfDistance, 0, 0, halfDistance],
-            opacity: [0.4, 1, 1, 0.4],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.7, 1],
-          }}
-        >
-          <UtensilsCrossed
-            size={iconSize}
-            className="text-primary filter drop-shadow-[0_0_6px_rgba(139,227,70,0.4)]"
-          />
-        </motion.div>
-
-        {/* Merge glow pulse when icons meet at center */}
-        <motion.div
-          className="absolute rounded-full bg-primary/20 blur-2xl"
-          style={{ width: iconSize * 0.8, height: iconSize * 0.8 }}
-          animate={{
-            scale: [0, 1.5, 1.5, 0],
-            opacity: [0, 0.6, 0.6, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.7, 1],
-          }}
+          animate={glow}
+          transition={transition}
+          className="absolute rounded-full bg-primary/30 blur-3xl"
+          style={{ width: iconSize, height: iconSize }}
         />
       </div>
       {fullPage && (
         <motion.span
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-sm font-bold tracking-widest text-slate-500 mt-2 uppercase"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-sm font-bold tracking-[0.2em] text-slate-500 mt-2 uppercase"
         >
           Arise
         </motion.span>
