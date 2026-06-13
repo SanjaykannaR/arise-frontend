@@ -13,6 +13,18 @@ export const metadata: Metadata = {
   title: "Arise — Get Fit or Die",
   description: "A premium mobile-first PWA for tracking workouts, diet, macros, streaks, and fitness journals.",
   manifest: "/manifest.json",
+  icons: [
+    {
+      rel: "icon",
+      url: "/arise-logo.png",
+      type: "image/png",
+    },
+    {
+      rel: "apple-touch-icon",
+      url: "/arise-logo.png",
+      type: "image/png",
+    },
+  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

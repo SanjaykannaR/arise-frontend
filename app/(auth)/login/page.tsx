@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Activity, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { supabase } from "@/lib/supabaseClient";
@@ -73,13 +73,13 @@ export default function LoginPage() {
   }
 };
   return (
-    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-12">
+    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-6">
       <div className="w-full max-w-sm flex flex-col items-center">
         {/* Logo / Header */}
-        <div className="flex flex-col items-center mb-10 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 neon-glow">
+        <div className="flex flex-col items-center mb-4 text-center">
+          {/* <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 neon-glow">
             <Activity className="w-8 h-8 text-primary" />
-          </div>
+          </div> */}
           <div className="mb-2">
             <Image
               src="/arise-logo.png"
@@ -89,9 +89,9 @@ export default function LoginPage() {
               className="mx-auto"
             />
           </div>
-          <p className="text-sm text-slate-500 uppercase tracking-widest font-semibold">
+          {/* <p className="text-sm text-slate-500 uppercase tracking-widest font-semibold">
             Get Fit or Die
-          </p>
+          </p> */}
         </div>
 
         {/* Login Form Card */}

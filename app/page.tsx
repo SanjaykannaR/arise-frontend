@@ -49,11 +49,21 @@ export default function RootPage() {
             router.replace("/onboarding/personal-details");
           }
         } catch (err: any) {
-          // If profile not found (404), redirect to onboarding
+          // If backend is unreachable, check localStorage for cached profile
+          const cachedProfile = localStorage.getItem("arise_user_profile");
+          if (cachedProfile) {
+            try {
+              const parsed = JSON.parse(cachedProfile);
+              if (parsed.isOnboarded) {
+                router.replace("/dashboard");
+                return;
+              }
+            } catch {}
+          }
+
           if (err.message?.includes("Profile not found") || err.message?.includes("404")) {
             router.replace("/onboarding/personal-details");
           } else {
-            // Other errors, assume onboarding is needed
             console.error("Profile fetch error on load:", err);
             router.replace("/onboarding/personal-details");
           }

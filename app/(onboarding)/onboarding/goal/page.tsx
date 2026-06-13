@@ -58,7 +58,15 @@ export default function GoalPage() {
 
   const handleNext = () => {
     const existingStr = localStorage.getItem("arise_user_profile");
-    const existing = existingStr ? JSON.parse(existingStr) : {};
+    let existing: Record<string, unknown> = {};
+    if (existingStr) {
+      try {
+        existing = JSON.parse(existingStr) as Record<string, unknown>;
+      } catch (e) {
+        console.error("Failed to parse existing profile from localStorage:", e);
+        existing = {};
+      }
+    }
 
     localStorage.setItem(
       "arise_user_profile",
