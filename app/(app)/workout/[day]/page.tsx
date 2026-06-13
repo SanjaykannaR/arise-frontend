@@ -97,11 +97,12 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-32">
+    <div className="flex flex-col flex-1">
       {/* Back Header */}
       <PageHeader title={`${dayName} Plan`} showBackButton />
 
-      <div className="px-5 space-y-6">
+      <div className="flex-1 overflow-y-auto px-5 pb-4">
+        <div className="min-h-full flex flex-col justify-center space-y-6">
         {/* Rest Day Switch Card */}
         <div className="glass-panel rounded-3xl p-5 flex items-center justify-between">
           <div className="space-y-1">
@@ -302,6 +303,7 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
             </>
           )}
         </motion.button>
+        </div>
       </div>
     </div>
   );
