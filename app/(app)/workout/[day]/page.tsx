@@ -97,7 +97,7 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-24">
+    <div className="flex flex-col flex-1 pb-32">
       {/* Back Header */}
       <PageHeader title={`${dayName} Plan`} showBackButton />
 

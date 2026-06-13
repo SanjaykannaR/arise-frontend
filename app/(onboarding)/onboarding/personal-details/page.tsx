@@ -1,13 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { kgToLbs, lbsToKg, cmToFeetInches, feetInchesToCm } from "@/lib/utils/unitConverters";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function PersonalDetailsPage() {
   const router = useRouter();
+
+  // Pull name/email from Supabase session (Google OAuth) into localStorage
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) return;
+      const meta = session.user.user_metadata || {};
+      const sessionName = meta.name || meta.full_name || "";
+      const sessionEmail = session.user.email || "";
+      const existing = localStorage.getItem("arise_user_profile");
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          if (!parsed.name && sessionName) parsed.name = sessionName;
+          if (!parsed.email && sessionEmail) parsed.email = sessionEmail;
+          localStorage.setItem("arise_user_profile", JSON.stringify(parsed));
+        } catch {}
+      }
+    });
+  }, []);
 
   // Helper to safely get local storage on client side
   const getSavedProfile = () => {
