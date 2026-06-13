@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type Easing } from "framer-motion";
 import { Dumbbell, UtensilsCrossed, Heart } from "lucide-react";
 
 interface LoadingSpinnerProps {
@@ -17,29 +17,29 @@ export default function LoadingSpinner({
   const dist = iconSize * 1.4;
   const cycle = 5;
 
-  const times = [0, 0.18, 0.35, 0.7, 0.85, 1];
+  const times = [0, 0.15, 0.25, 0.7, 0.8, 1];
 
   const slideIn = {
     x: [dist, 0, 0, 0, 0, dist],
-    opacity: [0, 1, 1, 1, 0, 0],
+    opacity: [0, 1, 0, 0, 1, 1],
   };
   const slideInReverse = {
     x: [-dist, 0, 0, 0, 0, -dist],
-    opacity: [0, 1, 1, 1, 0, 0],
+    opacity: [0, 1, 0, 0, 1, 1],
   };
   const heartAnim = {
     scale: [0, 0, 1.2, 1, 0.95, 0],
-    opacity: [0, 0, 1, 1, 1, 0],
+    opacity: [0, 0, 1, 1, 0, 0],
   };
   const glowAnim = {
-    scale: [0, 0, 2, 1.5, 1.5, 0],
-    opacity: [0, 0, 0.5, 0.25, 0.25, 0],
+    scale: [0, 0, 2.5, 1.8, 0, 0],
+    opacity: [0, 0, 0.6, 0.3, 0, 0],
   };
 
   const transition = {
     duration: cycle,
     repeat: Infinity,
-    ease: "easeInOut",
+    ease: "easeInOut" as const,
     times,
   };
 
