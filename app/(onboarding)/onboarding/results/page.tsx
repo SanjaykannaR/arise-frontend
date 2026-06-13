@@ -48,9 +48,12 @@ export default function ResultsPage() {
   }, [profile]);
 
   const completeOnboardingMutation = useCompleteOnboarding();
+  const [finishError, setFinishError] = useState<string | null>(null);
 
   const handleFinish = () => {
     if (!profile || !results) return;
+
+    setFinishError(null);
 
     completeOnboardingMutation.mutate({
       weight: profile.weight,
@@ -62,6 +65,25 @@ export default function ResultsPage() {
       name: profile.name,
     }, {
       onSuccess: () => {
+        router.push("/dashboard");
+      },
+      onError: (err) => {
+        const msg = err.message || "Unknown error";
+        setFinishError(msg);
+        console.error("Onboarding API error:", err);
+        // Fallback: save locally and navigate anyway
+        const saved = {
+          ...profile,
+          isOnboarded: true,
+          dailyCalorieTarget: results.caloriesTarget,
+          proteinTargetG: results.proteinGrams,
+          carbTargetG: results.carbsGrams,
+          fatTargetG: results.fatGrams,
+          activityLevel: profile.activityLevel,
+          goal: profile.goal,
+        };
+        localStorage.setItem("arise_user_profile", JSON.stringify(saved));
+        localStorage.setItem("arise_logged_in", "true");
         router.push("/dashboard");
       }
     });
@@ -177,6 +199,13 @@ export default function ResultsPage() {
           </div>
         </div>
       </div>
+
+      {/* Error message */}
+      {finishError && (
+        <div className="text-xs text-red-400 text-center bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5">
+          API Error: {finishError} — but we&apos;ll still take you to the dashboard.
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex gap-4">

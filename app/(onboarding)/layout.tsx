@@ -29,7 +29,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
 
   return (
     <AppShell>
-      <div className="flex flex-col flex-1 px-5 pt-8 pb-10">
+      <div className="flex flex-col flex-1 px-5 pt-8 pb-4">
         {/* Progress Header */}
         <div className="mb-8 w-full">
           <div className="flex justify-between items-end mb-2.5">

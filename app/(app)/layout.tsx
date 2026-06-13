@@ -42,7 +42,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <AppShell>
       {/* Scrollable content container */}
-      <div className="flex flex-col flex-1 w-full relative">
+      <div className="flex flex-col flex-1 w-full relative pb-28">
         {children}
       </div>
       {/* Floating apple bottom dock navigation */}
