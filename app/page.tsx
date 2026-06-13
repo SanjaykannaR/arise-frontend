@@ -21,6 +21,23 @@ export default function RootPage() {
 
         localStorage.setItem("arise_logged_in", "true");
 
+        // Pull user name from Supabase session metadata (Google OAuth / email signup)
+        const userName = session.user?.user_metadata?.name
+          || session.user?.user_metadata?.full_name
+          || session.user?.email?.split("@")[0]
+          || "";
+        const userEmail = session.user?.email || "";
+
+        const existingProfile = localStorage.getItem("arise_user_profile");
+        if (existingProfile) {
+          try {
+            const parsed = JSON.parse(existingProfile);
+            if (!parsed.name && userName) parsed.name = userName;
+            if (!parsed.email && userEmail) parsed.email = userEmail;
+            localStorage.setItem("arise_user_profile", JSON.stringify(parsed));
+          } catch {}
+        }
+
         // Try to fetch profile from backend
         try {
           const profile = await apiClient.get<any>("/api/user/profile");

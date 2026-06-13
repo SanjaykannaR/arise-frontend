@@ -108,7 +108,7 @@ export default function ResultsPage() {
   const fatPct = Math.round((fatCalories / totalCal) * 100);
 
   return (
-    <div className="flex flex-col flex-1 justify-between gap-6">
+    <div className="flex flex-col flex-1 gap-4">
       <div className="space-y-6">
         {/* Calorie Goal Hero */}
         <div className="glass-panel rounded-3xl p-6 text-center space-y-2 relative overflow-hidden">

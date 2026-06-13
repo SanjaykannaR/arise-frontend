@@ -144,9 +144,20 @@ export function useUserProfile() {
   return useQuery<UserProfile>({
     queryKey: QUERY_KEYS.USER,
     queryFn: async () => {
-      const data = await apiClient.get<any>("/api/user/profile");
-      return mapProfileToFrontend(data);
+      try {
+        const data = await apiClient.get<any>("/api/user/profile");
+        const mapped = mapProfileToFrontend(data);
+        localStorage.setItem("arise_user_profile", JSON.stringify(mapped));
+        return mapped;
+      } catch {
+        const cached = localStorage.getItem("arise_user_profile");
+        if (cached) {
+          return JSON.parse(cached) as UserProfile;
+        }
+        throw new Error("No cached profile available");
+      }
     },
+    staleTime: 30_000,
   });
 }
 

@@ -77,7 +77,7 @@ export default function GoalPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 justify-between gap-6">
+    <div className="flex flex-col flex-1 gap-4">
       <div className="space-y-4">
         <div className="text-center mb-2">
           <p className="text-sm text-slate-400">
