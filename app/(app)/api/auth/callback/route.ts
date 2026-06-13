@@ -37,5 +37,5 @@ export async function GET(request: NextRequest) {
   }
 
   // URL to redirect to after successful sign in
-  return NextResponse.redirect(`${requestUrl.origin}/onboarding`);
+  return NextResponse.redirect(`${requestUrl.origin}/onboarding/personal-details`);
 }

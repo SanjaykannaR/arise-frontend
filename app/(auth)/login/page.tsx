@@ -56,7 +56,7 @@ export default function LoginPage() {
       provider: "google",
       options: {
         // Change this to target your Next.js API callback route
-        redirectTo: `${window.location.origin}/app/api/auth/callback`,
+        redirectTo: `${window.location.origin}/api/auth/callback`,
       },
     });
 
