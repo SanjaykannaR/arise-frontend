@@ -42,7 +42,7 @@ export default function ActiveSessionPage() {
 
   if (!todayPlan || todayPlan.isRestDay) {
     return (
-      <div className="flex flex-col flex-1 pb-24">
+<div className="flex flex-col flex-1 pb-28">
         <PageHeader title="Active Session" showBackButton />
         <div className="px-5 flex-1 flex flex-col items-center justify-center text-center gap-4">
           <div className="w-12 h-12 rounded-full bg-slate-500/10 border border-slate-500/20 text-slate-500 flex items-center justify-center">

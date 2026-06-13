@@ -27,6 +27,10 @@ export default function PersonalDetailsPage() {
   const savedProfile = getSavedProfile();
 
   // 1. Initialize ALL states directly from the saved profile or fallbacks
+  const [name, setName] = useState<string>(
+    savedProfile?.name || ""
+  );
+
   const [unit, setUnit] = useState<"metric" | "imperial">(
     savedProfile?.unitPreference || "metric"
   );
@@ -90,6 +94,7 @@ export default function PersonalDetailsPage() {
 
     // Save temporary data
     const tempProfile = {
+      name,
       sex,
       age,
       weight: finalWeight,
@@ -119,6 +124,18 @@ export default function PersonalDetailsPage() {
   return (
     <div className="flex flex-col flex-1 gap-4">
       <div className="space-y-6">
+        {/* Full Name Input */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-400">Full Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary/50"
+          />
+        </div>
+
         {/* Unit preference toggle */}
         <div className="flex justify-center">
           <div className="flex bg-white/5 border border-white/10 rounded-full p-1 w-full max-w-[200px]">

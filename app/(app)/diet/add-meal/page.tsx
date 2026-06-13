@@ -179,7 +179,7 @@ export default function AddMealPage() {
   ];
 
   return (
-    <div className="flex flex-col flex-1 pb-24 relative">
+    <div className="flex flex-col flex-1 pb-28 relative">
       {/* Page Header */}
       <PageHeader title="Log Meal" showBackButton />
 

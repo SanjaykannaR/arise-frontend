@@ -25,6 +25,11 @@ export default function ProfilePage() {
     return <LoadingSpinner fullPage />;
   }
 
+  const cachedRaw = typeof window !== "undefined" ? localStorage.getItem("arise_user_profile") : null;
+  const cached = cachedRaw ? (() => { try { return JSON.parse(cachedRaw); } catch { return {}; } })() : {};
+  const displayName = user.name || cached.name || "User";
+  const displayEmail = user.email || cached.email || "";
+
   const handleUnitToggle = () => {
     const nextUnit = user.unitPreference === "metric" ? "imperial" : "metric";
     updateProfileMutation.mutate({ unitPreference: nextUnit });
@@ -58,9 +63,9 @@ export default function ProfilePage() {
           </div>
           <div className="flex flex-col">
             <h3 className="text-base font-bold text-white leading-tight">
-              {user.name || "Alexander"}
+              {displayName}
             </h3>
-            <span className="text-xs text-slate-500 mt-0.5">{user.email || "alex@arise.fit"}</span>
+            <span className="text-xs text-slate-500 mt-0.5">{displayEmail}</span>
           </div>
         </div>
 

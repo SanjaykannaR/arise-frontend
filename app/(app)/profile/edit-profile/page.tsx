@@ -70,7 +70,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-24">
+    <div className="flex flex-col flex-1 pb-28">
       {/* Back Header */}
       <PageHeader title="Edit Profile" showBackButton />
 
