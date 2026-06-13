@@ -56,7 +56,7 @@ export default function LoginPage() {
       provider: "google",
       options: {
         // Change this to target your Next.js API callback route
-        redirectTo: `${window.location.origin}app/api/auth/callback/route.ts`,
+        redirectTo: `${window.location.origin}/app/api/auth/callback`,
       },
     });
 
@@ -73,7 +73,8 @@ export default function LoginPage() {
   }
 };
   return (
-    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-start sm:justify-center p-5 py-6">
+    <div className="w-full min-h-screen bg-[#08080C] text-slate-100 flex flex-col items-center justify-center">
+      <main className="relative w-full min-h-screen flex flex-col items-center justify-center bg-[#0A0A0F] shadow-2xl border-x border-slate-900 px-4 sm:px-0 sm:max-w-[600px] md:max-w-[720px] lg:max-w-[1280px] xl:max-w-[1440px] mx-auto">
       <div className="w-full max-w-sm flex flex-col items-center">
         {/* Logo / Header */}
         <div className="flex flex-col items-center mb-4 text-center">
@@ -209,6 +210,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+      </main>
     </div>
   );
 }
