@@ -105,6 +105,18 @@ const DEFAULT_JOURNAL_ENTRIES: JournalEntry[] = [
 // Seed DB if empty
 export function seedDatabase() {
   if (!isClient) return;
+
+  // Migration: clear old default workout plans if still cached
+  const oldPlansRaw = localStorage.getItem(KEYS.WORKOUT_PLANS);
+  if (oldPlansRaw) {
+    try {
+      const oldPlans = JSON.parse(oldPlansRaw);
+      if (Array.isArray(oldPlans) && oldPlans.length > 0 && oldPlans[0].id === "plan-mon") {
+        localStorage.setItem(KEYS.WORKOUT_PLANS, JSON.stringify([]));
+      }
+    } catch {}
+  }
+
   if (!localStorage.getItem(KEYS.USER)) {
     localStorage.setItem(KEYS.USER, JSON.stringify(DEFAULT_USER));
   }

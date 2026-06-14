@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Plus, Trash2, Dumbbell, Moon, Calendar } from "lucide-react";
+import { X, Plus, Trash2, Dumbbell, Moon } from "lucide-react";
 import { useWorkoutPlans, useUpdateWorkoutPlan } from "@/lib/queries/hooks";
 import { WorkoutPlan, Exercise } from "@/types/app";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,8 +22,7 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
   const { data: plans, isLoading } = useWorkoutPlans();
   const updatePlan = useUpdateWorkoutPlan();
 
-  const todayName = DAYS[new Date().getDay()];
-  const [selectedDay] = useState<string>(todayName);
+  const [selectedDay, setSelectedDay] = useState<string>(DAYS[new Date().getDay()]);
   const [planName, setPlanName] = useState("");
   const [isRestDay, setIsRestDay] = useState(false);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -108,12 +107,23 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
               </button>
             </div>
 
-            {/* Current Day Display */}
+            {/* Day Selector */}
             <div className="mb-5">
-              <label className="text-xs font-semibold text-slate-400 mb-2 block">Day</label>
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-primary">
-                <Calendar className="w-4 h-4" />
-                {todayName}
+              <label className="text-xs font-semibold text-slate-400 mb-2 block">Select Day</label>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((day) => (
+                  <button
+                    key={day}
+                    onClick={() => setSelectedDay(day)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      selectedDay === day
+                        ? "bg-primary text-slate-950 shadow-[0_0_12px_rgba(139,227,70,0.3)]"
+                        : "bg-white/5 border border-white/10 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {day.slice(0, 3)}
+                  </button>
+                ))}
               </div>
             </div>
 
