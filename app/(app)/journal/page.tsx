@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { BookOpen, Calendar, Edit3, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { BookOpen, Calendar, Edit3, Save, CheckCircle2, AlertCircle, Pencil } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import SearchOverlay from "@/components/dashboard/SearchOverlay";
@@ -21,16 +21,19 @@ export default function JournalPage() {
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const initialized = useRef(false);
 
-  // Sync today's entry content on load
+  const todayEntry = entries?.find((e) => e.date === todayStr);
+
+  // Load today's saved content into editor on first load only
   useEffect(() => {
-    if (entries) {
-      const todayEntry = entries.find((e) => e.date === todayStr);
+    if (entries && !initialized.current) {
+      initialized.current = true;
       if (todayEntry) {
         setContent(todayEntry.content);
       }
     }
-  }, [entries, todayStr]);
+  }, [entries, todayEntry]);
 
   if (isLoading) {
     return <LoadingSpinner fullPage />;
@@ -41,6 +44,7 @@ export default function JournalPage() {
 
     saveEntryMutation.mutate(content, {
       onSuccess: () => {
+        setContent("");
         setShowSaveToast(true);
         setTimeout(() => setShowSaveToast(false), 2000);
       },
@@ -49,6 +53,12 @@ export default function JournalPage() {
         setTimeout(() => setShowErrorToast(false), 3000);
       },
     });
+  };
+
+  const handleEditToday = () => {
+    if (todayEntry) {
+      setContent(todayEntry.content);
+    }
   };
 
   // Sort past entries (excluding today)
@@ -101,6 +111,35 @@ export default function JournalPage() {
             )}
           </motion.button>
         </div>
+
+        {/* Today's Saved Entry Card */}
+        {todayEntry && (
+          <div className="space-y-3">
+            <span className="text-xs uppercase font-extrabold tracking-widest text-primary">
+              Today&apos;s Entry
+            </span>
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="glass-panel-interactive rounded-2xl p-4 flex flex-col gap-2.5 text-left cursor-pointer"
+              onClick={handleEditToday}
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  {formatDateDisplay(todayStr)}
+                </span>
+                <span className="text-[10px] uppercase font-bold text-primary flex items-center gap-1">
+                  <Pencil className="w-3 h-3" />
+                  Edit
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                {todayEntry.content}
+              </p>
+            </motion.div>
+          </div>
+        )}
 
         {/* Timeline of Past Entries */}
         <div className="space-y-3">
