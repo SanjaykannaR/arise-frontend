@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserProfile, WorkoutPlan, WorkoutLog, Meal, JournalEntry, Streak, Exercise } from "@/types/app";
 import { apiClient } from "@/lib/utils/apiClient";
 import { supabase } from "@/lib/supabaseClient";
-import { DEFAULT_WORKOUT_PLANS } from "./mockDb";
 
 // Keys used for cache invalidation
 export const QUERY_KEYS = {
@@ -227,31 +226,7 @@ export function useWorkoutPlans() {
   return useQuery<WorkoutPlan[]>({
     queryKey: QUERY_KEYS.WORKOUT_PLANS,
     queryFn: async () => {
-      let data = await apiClient.get<any[]>("/api/workout/plans");
-      if (data.length === 0) {
-        // Seed default plans in database
-        for (const defaultPlan of DEFAULT_WORKOUT_PLANS) {
-          const dayNum = dayStringToNumber(defaultPlan.dayOfWeek);
-          const plan = await apiClient.put<any>(`/api/workout/plans/${dayNum}`, {
-            plan_name: defaultPlan.planName,
-            is_rest_day: defaultPlan.isRestDay,
-          });
-          
-          if (!defaultPlan.isRestDay && defaultPlan.exercises?.length) {
-            for (let i = 0; i < defaultPlan.exercises.length; i++) {
-              const ex = defaultPlan.exercises[i];
-              await apiClient.post(`/api/workout/plans/${plan.id}/exercises`, {
-                exercise_name: ex.exerciseName,
-                sets: ex.sets,
-                reps: ex.reps,
-                weight_kg: ex.weightKg,
-                order_index: i,
-              });
-            }
-          }
-        }
-        data = await apiClient.get<any[]>("/api/workout/plans");
-      }
+      const data = await apiClient.get<any[]>("/api/workout/plans");
       return data.map(p => mapWorkoutPlanToFrontend(p));
     },
   });

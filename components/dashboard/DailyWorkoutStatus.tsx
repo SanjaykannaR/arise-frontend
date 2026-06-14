@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Dumbbell, CheckCircle2, Moon, Play } from "lucide-react";
+import { Dumbbell, CheckCircle2, Moon, Play, Plus } from "lucide-react";
 import { useWorkoutPlans, useWorkoutLogs } from "@/lib/queries/hooks";
 import { getTodayString } from "@/lib/utils/dateHelpers";
 import { motion } from "framer-motion";
@@ -27,8 +27,13 @@ export default function DailyWorkoutStatus() {
 
   if (!todayPlan) {
     return (
-      <div className="glass-panel rounded-3xl p-5 text-center">
-        <span className="text-xs text-slate-500">No workout configured for today</span>
+      <div className="glass-panel rounded-3xl p-5 text-center space-y-2">
+        <Dumbbell className="w-6 h-6 text-slate-600 mx-auto" />
+        <span className="text-xs text-slate-500 block">No workout configured for today</span>
+        <Link href="/workout" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+          <Plus className="w-3.5 h-3.5" />
+          Add Plan
+        </Link>
       </div>
     );
   }

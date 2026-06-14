@@ -16,22 +16,19 @@ export default function JournalPage() {
   const { data: entries, isLoading } = useJournalEntries();
   const saveEntryMutation = useSaveJournalEntry(todayStr);
 
-  // Today's entry editing state
+  const todayEntry = entries?.find((e) => e.date === todayStr);
+
   const [content, setContent] = useState("");
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const initialized = useRef(false);
+  const loadedInitial = useRef(false);
 
-  const todayEntry = entries?.find((e) => e.date === todayStr);
-
-  // Load today's saved content into editor on first load only
+  // Load today's entry content on first data load only
   useEffect(() => {
-    if (entries && !initialized.current) {
-      initialized.current = true;
-      if (todayEntry) {
-        setContent(todayEntry.content);
-      }
+    if (entries && !loadedInitial.current) {
+      loadedInitial.current = true;
+      setContent(todayEntry?.content || "");
     }
   }, [entries, todayEntry]);
 

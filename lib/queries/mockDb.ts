@@ -49,78 +49,6 @@ const DEFAULT_USER: UserProfile = {
   isOnboarded: false, // will require onboarding on first use
 };
 
-export const DEFAULT_WORKOUT_PLANS: WorkoutPlan[] = [
-  {
-    id: "plan-mon",
-    dayOfWeek: "Monday",
-    planName: "Push (Chest, Shoulders & Triceps)",
-    isRestDay: false,
-    exercises: [
-      { id: "e1", exerciseName: "Incline Dumbbell Press", sets: 4, reps: 10, weightKg: 24 },
-      { id: "e2", exerciseName: "Overhead Barbell Press", sets: 3, reps: 8, weightKg: 40 },
-      { id: "e3", exerciseName: "Dumbbell Lateral Raises", sets: 4, reps: 15, weightKg: 10 },
-      { id: "e4", exerciseName: "Triceps Overhead Extension", sets: 3, reps: 12, weightKg: 18 },
-    ],
-  },
-  {
-    id: "plan-tue",
-    dayOfWeek: "Tuesday",
-    planName: "Pull (Back & Biceps)",
-    isRestDay: false,
-    exercises: [
-      { id: "e5", exerciseName: "Weighted Pull-Ups", sets: 4, reps: 8, weightKg: 5 },
-      { id: "e6", exerciseName: "Barbell Rows", sets: 3, reps: 10, weightKg: 60 },
-      { id: "e7", exerciseName: "Face Pulls", sets: 4, reps: 15, weightKg: 20 },
-      { id: "e8", exerciseName: "Incline Bicep Curls", sets: 3, reps: 12, weightKg: 12 },
-    ],
-  },
-  {
-    id: "plan-wed",
-    dayOfWeek: "Wednesday",
-    planName: "Rest & Active Recovery",
-    isRestDay: true,
-    exercises: [],
-  },
-  {
-    id: "plan-thu",
-    dayOfWeek: "Thursday",
-    planName: "Legs (Quad & Hamstring Focus)",
-    isRestDay: false,
-    exercises: [
-      { id: "e9", exerciseName: "Barbell Squats", sets: 4, reps: 8, weightKg: 85 },
-      { id: "e10", exerciseName: "Romanian Deadlifts", sets: 3, reps: 10, weightKg: 75 },
-      { id: "e11", exerciseName: "Leg Extensions", sets: 3, reps: 15, weightKg: 45 },
-      { id: "e12", exerciseName: "Standing Calf Raises", sets: 4, reps: 15, weightKg: 50 },
-    ],
-  },
-  {
-    id: "plan-fri",
-    dayOfWeek: "Friday",
-    planName: "Core & Cardiovascular HIIT",
-    isRestDay: false,
-    exercises: [
-      { id: "e13", exerciseName: "Hanging Leg Raises", sets: 3, reps: 15, weightKg: 0 },
-      { id: "e14", exerciseName: "Plank to Pushup", sets: 3, reps: 12, weightKg: 0 },
-      { id: "e15", exerciseName: "Kettlebell Swings", sets: 4, reps: 20, weightKg: 16 },
-      { id: "e16", exerciseName: "Assault Bike Intervals", sets: 5, reps: 1, weightKg: 0 },
-    ],
-  },
-  {
-    id: "plan-sat",
-    dayOfWeek: "Saturday",
-    planName: "Weekend Active Recovery",
-    isRestDay: true,
-    exercises: [],
-  },
-  {
-    id: "plan-sun",
-    dayOfWeek: "Sunday",
-    planName: "Rest Day",
-    isRestDay: true,
-    exercises: [],
-  },
-];
-
 const DEFAULT_STREAK: Streak = {
   currentStreak: 5,
   longestStreak: 12,
@@ -181,7 +109,7 @@ export function seedDatabase() {
     localStorage.setItem(KEYS.USER, JSON.stringify(DEFAULT_USER));
   }
   if (!localStorage.getItem(KEYS.WORKOUT_PLANS)) {
-    localStorage.setItem(KEYS.WORKOUT_PLANS, JSON.stringify(DEFAULT_WORKOUT_PLANS));
+    localStorage.setItem(KEYS.WORKOUT_PLANS, JSON.stringify([]));
   }
   if (!localStorage.getItem(KEYS.STREAK)) {
     localStorage.setItem(KEYS.STREAK, JSON.stringify(DEFAULT_STREAK));
@@ -220,11 +148,11 @@ export const mockDb = {
   async getWorkoutPlans(): Promise<WorkoutPlan[]> {
     await delay();
     seedDatabase();
-    return getItem<WorkoutPlan[]>(KEYS.WORKOUT_PLANS, DEFAULT_WORKOUT_PLANS);
+    return getItem<WorkoutPlan[]>(KEYS.WORKOUT_PLANS, []);
   },
   async updateWorkoutPlan(updatedPlan: WorkoutPlan): Promise<WorkoutPlan> {
     await delay();
-    const plans = getItem<WorkoutPlan[]>(KEYS.WORKOUT_PLANS, DEFAULT_WORKOUT_PLANS);
+    const plans = getItem<WorkoutPlan[]>(KEYS.WORKOUT_PLANS, []);
     const index = plans.findIndex((p) => p.dayOfWeek === updatedPlan.dayOfWeek);
     if (index !== -1) {
       plans[index] = updatedPlan;
