@@ -147,12 +147,17 @@ export function useUserProfile() {
       try {
         const data = await apiClient.get<any>("/api/user/profile");
         const mapped = mapProfileToFrontend(data);
-        // Preserve cached values for fields that came back empty from backend
+        // Sync cached name/email to backend if backend has them empty
         const cached = localStorage.getItem("arise_user_profile");
         if (cached) {
           const cachedProfile = JSON.parse(cached) as UserProfile;
-          if (!mapped.name && cachedProfile.name) mapped.name = cachedProfile.name;
-          if (!mapped.email && cachedProfile.email) mapped.email = cachedProfile.email;
+          if (!mapped.name && cachedProfile.name) {
+            mapped.name = cachedProfile.name;
+            apiClient.patch("/api/user/profile", { name: cachedProfile.name }).catch(() => {});
+          }
+          if (!mapped.email && cachedProfile.email) {
+            mapped.email = cachedProfile.email;
+          }
         }
         localStorage.setItem("arise_user_profile", JSON.stringify(mapped));
         return mapped;
