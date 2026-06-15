@@ -76,6 +76,8 @@ function mapWorkoutPlanToFrontend(dbPlan: any): WorkoutPlan {
       sets: e.sets,
       reps: e.reps,
       weightKg: Number(e.weight_kg || 0),
+      durationMinutes: e.duration_minutes || undefined,
+      distanceKm: e.distance_km || undefined,
     })),
   };
 }
@@ -115,7 +117,9 @@ function mapWorkoutLogToFrontend(dbLog: any, planName: string = "Routine"): Work
     sets: e.sets_completed,
     reps: e.reps_completed,
     weightKg: Number(e.weight_kg?.[0] || 0),
-    isCompleted: e.sets_completed > 0,
+    isCompleted: e.sets_completed > 0 || e.duration_minutes > 0,
+    durationMinutes: e.duration_minutes || undefined,
+    distanceKm: e.distance_km || undefined,
   }));
 
   return {
@@ -184,7 +188,12 @@ export function useUpdateUserProfile() {
       
       const hasProfile =
         profileUpdates.name !== undefined ||
-        profileUpdates.unitPreference !== undefined;
+        profileUpdates.unitPreference !== undefined ||
+        profileUpdates.weight !== undefined ||
+        profileUpdates.height !== undefined ||
+        profileUpdates.age !== undefined ||
+        profileUpdates.sex !== undefined ||
+        profileUpdates.goal !== undefined;
 
       if (hasGoals) {
         const goalPayload = {
@@ -204,6 +213,11 @@ export function useUpdateUserProfile() {
         const profilePayload = {
           name: profileUpdates.name,
           unit_preference: profileUpdates.unitPreference,
+          weight_kg: profileUpdates.weight,
+          height_cm: profileUpdates.height,
+          age: profileUpdates.age,
+          sex: profileUpdates.sex,
+          goal: profileUpdates.goal,
         };
         // Remove undefined keys
         Object.keys(profilePayload).forEach(
@@ -258,11 +272,13 @@ export function useUpdateWorkoutPlan() {
 
       for (let i = 0; i < newExercises.length; i++) {
         const ex = newExercises[i];
-        const payload = {
+        const payload: any = {
           exercise_name: ex.exerciseName,
           sets: ex.sets,
           reps: ex.reps,
           weight_kg: ex.weightKg,
+          duration_minutes: ex.durationMinutes,
+          distance_km: ex.distanceKm,
           order_index: i,
         };
 
@@ -317,6 +333,8 @@ export function useLogWorkout() {
         sets_completed: ex.isCompleted ? ex.sets : 0,
         reps_completed: ex.isCompleted ? ex.reps : 0,
         weight_kg: Array(ex.sets).fill(ex.weightKg),
+        duration_minutes: ex.isCompleted ? ex.durationMinutes : 0,
+        distance_km: ex.isCompleted ? ex.distanceKm : 0,
       }));
 
       const payload = {

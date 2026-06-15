@@ -23,6 +23,9 @@ export interface Exercise {
   reps: number;
   weightKg: number;
   isCompleted?: boolean;
+  // Cardio fields
+  durationMinutes?: number;
+  distanceKm?: number;
 }
 
 export interface WorkoutPlan {

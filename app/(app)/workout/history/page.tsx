@@ -8,6 +8,7 @@ import { useWorkoutLogs } from "@/lib/queries/hooks";
 import { formatDateDisplay } from "@/lib/utils/dateHelpers";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { useRouter } from "next/navigation";
+import { isCardioExercise } from "@/components/dashboard/exerciseIcons";
 
 export default function WorkoutHistoryPage() {
   const router = useRouter();
@@ -66,7 +67,9 @@ export default function WorkoutHistoryPage() {
                           {ex.exerciseName}
                         </span>
                         <span className="text-slate-400 font-mono">
-                          {ex.sets} sets x {ex.reps} @ {ex.weightKg}kg
+                          {isCardioExercise(ex.exerciseName)
+                            ? `${ex.durationMinutes || 0} min${ex.distanceKm ? ` · ${ex.distanceKm} km` : ""}`
+                            : `${ex.sets} sets x ${ex.reps} @ ${ex.weightKg}kg`}
                         </span>
                       </div>
                     ))}

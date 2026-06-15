@@ -2,12 +2,13 @@
 
 import React, { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Save, ArrowLeft, Info } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, Info, Timer, MapPin } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import { useWorkoutPlans, useUpdateWorkoutPlan } from "@/lib/queries/hooks";
 import { WorkoutPlan, Exercise } from "@/types/app";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { motion } from "framer-motion";
+import { isCardioExercise } from "@/components/dashboard/exerciseIcons";
 
 export default function DayWorkoutPage({ params }: { params: Promise<{ day: string }> }) {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
   const [newExSets, setNewExSets] = useState(3);
   const [newExReps, setNewExReps] = useState(10);
   const [newExWeight, setNewExWeight] = useState(20);
+  const [newExDuration, setNewExDuration] = useState(20);
+  const [newExDistance, setNewExDistance] = useState(2);
 
   // Sync initial state when plans load
   useEffect(() => {
@@ -53,16 +56,21 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
     e.preventDefault();
     if (!newExName.trim()) return;
 
+    const isCardio = isCardioExercise(newExName);
     const newEx: Exercise = {
       id: `ex-${Date.now()}`,
       exerciseName: newExName,
-      sets: newExSets,
-      reps: newExReps,
-      weightKg: newExWeight,
+      sets: isCardio ? 0 : newExSets,
+      reps: isCardio ? 0 : newExReps,
+      weightKg: isCardio ? 0 : newExWeight,
+      durationMinutes: isCardio ? newExDuration : undefined,
+      distanceKm: isCardio ? newExDistance : undefined,
     };
 
     setExercises([...exercises, newEx]);
     setNewExName("");
+    setNewExDuration(20);
+    setNewExDistance(2);
   };
 
   const handleRemoveExercise = (id: string) => {
@@ -185,7 +193,38 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
                         </button>
                       </div>
 
-                      {/* Sets, Reps, Weight inputs */}
+                      {/* Sets, Reps, Weight or Cardio fields */}
+                      {isCardioExercise(ex.exerciseName) ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                              <Timer className="w-3 h-3" /> Mins
+                            </span>
+                            <input
+                              type="number"
+                              value={ex.durationMinutes || 0}
+                              onChange={(e) =>
+                                handleUpdateExerciseField(ex.id, "durationMinutes", parseInt(e.target.value) || 0)
+                              }
+                              className="bg-white/5 border border-white/5 rounded-xl py-1.5 px-2 text-center text-xs font-bold text-white focus:outline-none"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> Km
+                            </span>
+                            <input
+                              type="number"
+                              value={ex.distanceKm || 0}
+                              step="0.1"
+                              onChange={(e) =>
+                                handleUpdateExerciseField(ex.id, "distanceKm", parseFloat(e.target.value) || 0)
+                              }
+                              className="bg-white/5 border border-white/5 rounded-xl py-1.5 px-2 text-center text-xs font-bold text-white focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      ) : (
                       <div className="grid grid-cols-3 gap-3">
                         <div className="flex flex-col gap-1">
                           <span className="text-[10px] text-slate-500 font-bold uppercase">Sets</span>
@@ -221,6 +260,7 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
                           />
                         </div>
                       </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -242,6 +282,33 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none"
                 />
 
+                {isCardioExercise(newExName) ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                      <Timer className="w-3 h-3" /> Duration (min)
+                    </span>
+                    <input
+                      type="number"
+                      value={newExDuration}
+                      onChange={(e) => setNewExDuration(parseInt(e.target.value) || 0)}
+                      className="bg-white/5 border border-white/5 rounded-xl py-1.5 text-center text-xs font-bold text-white"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> Distance (km)
+                    </span>
+                    <input
+                      type="number"
+                      value={newExDistance}
+                      step="0.1"
+                      onChange={(e) => setNewExDistance(parseFloat(e.target.value) || 0)}
+                      className="bg-white/5 border border-white/5 rounded-xl py-1.5 text-center text-xs font-bold text-white"
+                    />
+                  </div>
+                </div>
+                ) : (
                 <div className="grid grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase">Sets</span>
@@ -271,6 +338,7 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
                     />
                   </div>
                 </div>
+                )}
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}

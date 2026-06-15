@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Flame, Trophy, Play, CheckCircle, Timer, AlertCircle } from "lucide-react";
+import { Check, Flame, Trophy, Play, CheckCircle, Timer, AlertCircle, MapPin } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import { useWorkoutPlans, useLogWorkout } from "@/lib/queries/hooks";
 import { getTodayString } from "@/lib/utils/dateHelpers";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import { isCardioExercise } from "@/components/dashboard/exerciseIcons";
 
 export default function ActiveSessionPage() {
   const router = useRouter();
@@ -179,7 +180,9 @@ export default function ActiveSessionPage() {
                       {ex.exerciseName}
                     </span>
                     <span className="text-xs text-slate-500 mt-0.5">
-                      {ex.sets} sets x {ex.reps} reps @ {ex.weightKg} kg
+                      {isCardioExercise(ex.exerciseName)
+                        ? `${ex.durationMinutes || 0} min${ex.distanceKm ? ` · ${ex.distanceKm} km` : ""}`
+                        : `${ex.sets} sets x ${ex.reps} reps @ ${ex.weightKg} kg`}
                     </span>
                   </div>
                 </div>

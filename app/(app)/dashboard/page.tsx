@@ -9,7 +9,7 @@ import CalorieRing from "@/components/dashboard/CalorieRing";
 import MacroSummaryBar from "@/components/dashboard/MacroSummaryBar";
 import { useUserProfile, useDietLog, useStreak, useWorkoutPlans, useWorkoutLogs } from "@/lib/queries/hooks";
 import { getTodayString } from "@/lib/utils/dateHelpers";
-import { getExerciseIcon } from "@/components/dashboard/exerciseIcons";
+import { getExerciseIcon, isCardioExercise } from "@/components/dashboard/exerciseIcons";
 import AddWorkoutModal from "@/components/dashboard/AddWorkoutModal";
 import SearchOverlay from "@/components/dashboard/SearchOverlay";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -225,7 +225,9 @@ function DashboardContent() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-white truncate">{ex.exerciseName}</p>
                           <p className="text-[11px] text-slate-500 font-semibold">
-                            {ex.sets} &times; {ex.reps} @ {ex.weightKg}kg
+                            {isCardioExercise(ex.exerciseName)
+                              ? `${ex.durationMinutes || 0} min${ex.distanceKm ? ` · ${ex.distanceKm} km` : ""}`
+                              : `${ex.sets} &times; ${ex.reps} @ ${ex.weightKg}kg`}
                           </p>
                         </div>
                       </div>

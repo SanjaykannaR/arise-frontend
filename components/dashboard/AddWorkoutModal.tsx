@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Plus, Trash2, Dumbbell, Moon } from "lucide-react";
+import { X, Plus, Trash2, Dumbbell, Moon, Timer, MapPin } from "lucide-react";
 import { useWorkoutPlans, useUpdateWorkoutPlan } from "@/lib/queries/hooks";
 import { WorkoutPlan, Exercise } from "@/types/app";
 import { motion, AnimatePresence } from "framer-motion";
-import { getExerciseIcon } from "./exerciseIcons";
+import { getExerciseIcon, isCardioExercise } from "./exerciseIcons";
 
 interface AddWorkoutModalProps {
   isOpen: boolean;
@@ -46,7 +46,7 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
   const addExercise = () => {
     setExercises((prev) => [
       ...prev,
-      { id: generateId(), exerciseName: "", sets: 3, reps: 10, weightKg: 0 },
+      { id: generateId(), exerciseName: "", sets: 3, reps: 10, weightKg: 0, durationMinutes: undefined, distanceKm: undefined },
     ]);
   };
 
@@ -196,6 +196,33 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                    {isCardioExercise(ex.exerciseName) ? (
+                    <div className="flex gap-2 pl-7">
+                      <div className="flex-1">
+                        <label className="text-[9px] font-bold text-slate-600 uppercase flex items-center gap-1">
+                          <Timer className="w-3 h-3" /> Mins
+                        </label>
+                        <input
+                          type="number"
+                          value={ex.durationMinutes || 0}
+                          onChange={(e) => updateExercise(ex.id, "durationMinutes", parseInt(e.target.value) || 0)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-1.5 text-center text-xs text-white focus:outline-none focus:border-primary/50"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-[9px] font-bold text-slate-600 uppercase flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> Km
+                        </label>
+                        <input
+                          type="number"
+                          value={ex.distanceKm || 0}
+                          step="0.1"
+                          onChange={(e) => updateExercise(ex.id, "distanceKm", parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-1.5 text-center text-xs text-white focus:outline-none focus:border-primary/50"
+                        />
+                      </div>
+                    </div>
+                    ) : (
                     <div className="flex gap-2 pl-7">
                       <div className="flex-1">
                         <label className="text-[9px] font-bold text-slate-600 uppercase">Sets</label>
@@ -225,6 +252,7 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
                         />
                       </div>
                     </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -53,6 +53,12 @@ const CoreIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+const CARDIO_PATTERN = /cardio|run|jump|bike|swim|rowing|hiit|burpee|jump.?rope|sprint|treadmill|elliptical|stair|walk|hike/;
+
+export function isCardioExercise(exerciseName: string): boolean {
+  return CARDIO_PATTERN.test(exerciseName.toLowerCase());
+}
+
 export function getExerciseIcon(exerciseName: string, className?: string): React.ReactNode {
   const n = exerciseName.toLowerCase();
   const cls = className || "w-5 h-5 text-primary";
@@ -75,7 +81,7 @@ export function getExerciseIcon(exerciseName: string, className?: string): React
   if (/core|abs|plank|crunch|sit.?up|leg.?raise|hanging|russian|torso|oblique|v.?up|hip.?thrust|bridge/.test(n))
     return <CoreIcon className={cls} />;
 
-  if (/cardio|run|jump|bike|swim|rowing|hiit|burpee|jump.?rope|sprint|treadmill|elliptical|stair/.test(n))
+  if (CARDIO_PATTERN.test(n))
     return <Heart className={cls} />;
 
   return <Dumbbell className={cls} />;

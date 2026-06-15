@@ -15,6 +15,7 @@ export default function EditGoalsPage() {
   const updateProfileMutation = useUpdateUserProfile();
 
   // Inputs state
+  const [goal, setGoal] = useState<"lose_fat" | "maintain" | "build_muscle">("maintain");
   const [calories, setCalories] = useState(2000);
   const [protein, setProtein] = useState(150);
   const [carbs, setCarbs] = useState(200);
@@ -22,6 +23,7 @@ export default function EditGoalsPage() {
 
   useEffect(() => {
     if (user) {
+      setGoal(user.goal);
       setCalories(user.dailyCalorieTarget);
       setProtein(user.proteinTargetG);
       setCarbs(user.carbTargetG);
@@ -40,7 +42,7 @@ export default function EditGoalsPage() {
       age: user.age,
       sex: user.sex,
       activityLevel: user.activityLevel,
-      goal: user.goal,
+      goal,
     });
 
     setCalories(calcResults.caloriesTarget);
@@ -52,6 +54,7 @@ export default function EditGoalsPage() {
   const handleSave = () => {
     updateProfileMutation.mutate(
       {
+        goal,
         dailyCalorieTarget: calories,
         proteinTargetG: protein,
         carbTargetG: carbs,
@@ -90,6 +93,28 @@ export default function EditGoalsPage() {
             <RefreshCw className="w-3.5 h-3.5" />
             Recalculate Targets
           </button>
+        </div>
+
+        {/* Goal Selector */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-slate-400">Goal</label>
+          <div className="grid grid-cols-3 gap-2">
+            {(["lose_fat", "maintain", "build_muscle"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => setGoal(g)}
+                className={`p-3 rounded-2xl border text-center transition-all ${
+                  goal === g
+                    ? "bg-primary/10 border-primary text-primary neon-glow"
+                    : "bg-white/5 border-white/5 text-slate-400 hover:border-white/10"
+                }`}
+              >
+                <span className="text-xs font-bold block leading-tight">
+                  {g === "lose_fat" ? "Lose Fat" : g === "build_muscle" ? "Build Muscle" : "Maintain"}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Inputs */}
