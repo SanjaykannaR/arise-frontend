@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Activity, User, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { supabase } from "@/lib/supabaseClient";
