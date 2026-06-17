@@ -1,12 +1,13 @@
 "use client";
 
-import React, { use, useState, useEffect } from "react";
+import React, { use, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Save, ArrowLeft, Info, Timer, MapPin } from "lucide-react";
 import PageHeader from "@/components/layout/PageHeader";
 import { useWorkoutPlans, useUpdateWorkoutPlan } from "@/lib/queries/hooks";
 import { WorkoutPlan, Exercise } from "@/types/app";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import UndoToast from "@/components/shared/UndoToast";
 import { motion } from "framer-motion";
 import { isCardioExercise } from "@/components/dashboard/exerciseIcons";
 
@@ -73,9 +74,29 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
     setNewExDistance(2);
   };
 
+  // Undo removal state
+  const [removedExercise, setRemovedExercise] = useState<Exercise | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+
   const handleRemoveExercise = (id: string) => {
-    setExercises(exercises.filter((ex) => ex.id !== id));
+    const ex = exercises.find((e) => e.id === id);
+    if (!ex) return;
+    setExercises(exercises.filter((e) => e.id !== id));
+    setRemovedExercise(ex);
+    setShowUndo(true);
   };
+
+  const handleUndoRemove = useCallback(() => {
+    if (!removedExercise) return;
+    setExercises((prev) => [...prev, removedExercise]);
+    setShowUndo(false);
+    setRemovedExercise(null);
+  }, [removedExercise]);
+
+  const handleUndoTimeout = useCallback(() => {
+    setShowUndo(false);
+    setRemovedExercise(null);
+  }, []);
 
   const handleUpdateExerciseField = (id: string, field: keyof Exercise, value: any) => {
     setExercises(
@@ -373,6 +394,14 @@ export default function DayWorkoutPage({ params }: { params: Promise<{ day: stri
         </motion.button>
         </div>
       </div>
+
+      <UndoToast
+        visible={showUndo}
+        message="Exercise removed"
+        onUndo={handleUndoRemove}
+        onTimeout={handleUndoTimeout}
+        duration={2000}
+      />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { X, Plus, Trash2, Dumbbell, Moon, Timer, MapPin } from "lucide-react";
 import { useWorkoutPlans, useUpdateWorkoutPlan } from "@/lib/queries/hooks";
 import { WorkoutPlan, Exercise } from "@/types/app";
+import UndoToast from "@/components/shared/UndoToast";
 import { motion, AnimatePresence } from "framer-motion";
 import { getExerciseIcon, isCardioExercise } from "./exerciseIcons";
 
@@ -50,9 +51,29 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
     ]);
   };
 
+  // Undo removal state
+  const [removedExercise, setRemovedExercise] = useState<Exercise | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+
   const removeExercise = (id: string) => {
+    const ex = exercises.find((e) => e.id === id);
+    if (!ex) return;
     setExercises((prev) => prev.filter((e) => e.id !== id));
+    setRemovedExercise(ex);
+    setShowUndo(true);
   };
+
+  const handleUndoRemove = useCallback(() => {
+    if (!removedExercise) return;
+    setExercises((prev) => [...prev, removedExercise]);
+    setShowUndo(false);
+    setRemovedExercise(null);
+  }, [removedExercise]);
+
+  const handleUndoTimeout = useCallback(() => {
+    setShowUndo(false);
+    setRemovedExercise(null);
+  }, []);
 
   const updateExercise = (id: string, field: keyof Exercise, value: string | number) => {
     setExercises((prev) =>
@@ -279,6 +300,14 @@ export default function AddWorkoutModal({ isOpen, onClose }: AddWorkoutModalProp
             </motion.button>
           </div>
         </motion.div>
+
+        <UndoToast
+          visible={showUndo}
+          message="Exercise removed"
+          onUndo={handleUndoRemove}
+          onTimeout={handleUndoTimeout}
+          duration={2000}
+        />
       </div>
     </AnimatePresence>
   );
