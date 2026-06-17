@@ -10,22 +10,27 @@ import { supabase } from "@/lib/supabaseClient";
 export default function PersonalDetailsPage() {
   const router = useRouter();
 
-  // Pull name/email from Supabase session (Google OAuth) into localStorage
+  // Pull name/email from Supabase session (Google OAuth) into state + localStorage
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user) return;
       const meta = session.user.user_metadata || {};
       const sessionName = meta.name || meta.full_name || "";
       const sessionEmail = session.user.email || "";
+
       const existing = localStorage.getItem("arise_user_profile");
+      let profile: Record<string, unknown> = {};
       if (existing) {
-        try {
-          const parsed = JSON.parse(existing);
-          if (!parsed.name && sessionName) parsed.name = sessionName;
-          if (!parsed.email && sessionEmail) parsed.email = sessionEmail;
-          localStorage.setItem("arise_user_profile", JSON.stringify(parsed));
-        } catch {}
+        try { profile = JSON.parse(existing); } catch {}
       }
+      if (!profile.name && sessionName) {
+        profile.name = sessionName;
+        setName(sessionName);
+      }
+      if (!profile.email && sessionEmail) {
+        profile.email = sessionEmail;
+      }
+      localStorage.setItem("arise_user_profile", JSON.stringify(profile));
     });
   }, []);
 
@@ -71,9 +76,20 @@ export default function PersonalDetailsPage() {
     savedProfile?.weight ? Math.round(kgToLbs(savedProfile.weight)) : 154
   );
 
+  // String display values so user can clear and retype without 0 sticking
+  const [weightKgInput, setWeightKgInput] = useState<string>(
+    String(savedProfile?.weight || 70)
+  );
+  const [weightLbsInput, setWeightLbsInput] = useState<string>(
+    String(savedProfile?.weight ? Math.round(kgToLbs(savedProfile.weight)) : 154)
+  );
+
   // Height initialization
   const [heightCm, setHeightCm] = useState<number>(
     savedProfile?.height || 175
+  );
+  const [heightCmInput, setHeightCmInput] = useState<string>(
+    String(savedProfile?.height || 175)
   );
   const [heightFt, setHeightFt] = useState<number>(() => {
     if (savedProfile?.height) {
@@ -87,6 +103,18 @@ export default function PersonalDetailsPage() {
     }
     return 9;
   });
+  const [heightFtInput, setHeightFtInput] = useState<string>(() => {
+    if (savedProfile?.height) {
+      return String(cmToFeetInches(savedProfile.height).feet);
+    }
+    return "5";
+  });
+  const [heightInInput, setHeightInInput] = useState<string>(() => {
+    if (savedProfile?.height) {
+      return String(cmToFeetInches(savedProfile.height).inches);
+    }
+    return "9";
+  });
 
   // Sync inputs on unit change
   const handleUnitToggle = (val: "metric" | "imperial") => {
@@ -94,14 +122,21 @@ export default function PersonalDetailsPage() {
     setUnit(val);
 
     if (val === "imperial") {
-      setWeightLbs(Math.round(kgToLbs(weightKg)));
+      const lbs = Math.round(kgToLbs(weightKg));
+      setWeightLbs(lbs);
+      setWeightLbsInput(String(lbs));
       const { feet, inches } = cmToFeetInches(heightCm);
       setHeightFt(feet);
       setHeightIn(inches);
+      setHeightFtInput(String(feet));
+      setHeightInInput(String(inches));
     } else {
-      setWeightKg(Math.round(lbsToKg(weightLbs) * 10) / 10);
-      cmToFeetInches(heightCm); // Keeps fallback or standard heights consistent
-      setHeightCm(feetInchesToCm(heightFt, heightIn));
+      const kg = Math.round(lbsToKg(weightLbs) * 10) / 10;
+      setWeightKg(kg);
+      setWeightKgInput(String(kg));
+      const cm = feetInchesToCm(heightFt, heightIn);
+      setHeightCm(cm);
+      setHeightCmInput(String(cm));
     }
   };
 
@@ -236,22 +271,32 @@ export default function PersonalDetailsPage() {
               {unit === "metric" ? (
                 <input
                   type="number"
-                  value={weightKg}
+                  value={weightKgInput}
                   onChange={(e) => {
-                    const v = parseFloat(e.target.value);
-                    setWeightKg(v || 0);
-                    setWeightLbs(Math.round(kgToLbs(v || 0)));
+                    const raw = e.target.value;
+                    setWeightKgInput(raw);
+                    if (raw === "") return;
+                    const v = parseFloat(raw);
+                    if (!isNaN(v)) {
+                      setWeightKg(v);
+                      setWeightLbs(Math.round(kgToLbs(v)));
+                    }
                   }}
                   className="w-full text-center bg-transparent font-bold text-xl text-white outline-none"
                 />
               ) : (
                 <input
                   type="number"
-                  value={weightLbs}
+                  value={weightLbsInput}
                   onChange={(e) => {
-                    const v = parseInt(e.target.value);
-                    setWeightLbs(v || 0);
-                    setWeightKg(Math.round(lbsToKg(v || 0) * 10) / 10);
+                    const raw = e.target.value;
+                    setWeightLbsInput(raw);
+                    if (raw === "") return;
+                    const v = parseInt(raw);
+                    if (!isNaN(v)) {
+                      setWeightLbs(v);
+                      setWeightKg(Math.round(lbsToKg(v) * 10) / 10);
+                    }
                   }}
                   className="w-full text-center bg-transparent font-bold text-xl text-white outline-none"
                 />
@@ -264,47 +309,64 @@ export default function PersonalDetailsPage() {
         <div className="space-y-2">
           <label className="text-xs font-semibold text-slate-400">Height</label>
           {unit === "metric" ? (
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-start gap-3">
               <span className="text-sm font-semibold text-slate-400">Height (cm)</span>
               <input
                 type="number"
-                value={heightCm}
+                value={heightCmInput}
                 onChange={(e) => {
-                  const v = parseInt(e.target.value);
-                  setHeightCm(v || 0);
-                  const { feet, inches } = cmToFeetInches(v || 0);
-                  setHeightFt(feet);
-                  setHeightIn(inches);
+                  const raw = e.target.value;
+                  setHeightCmInput(raw);
+                  if (raw === "") return;
+                  const v = parseInt(raw);
+                  if (!isNaN(v)) {
+                    setHeightCm(v);
+                    const { feet, inches } = cmToFeetInches(v);
+                    setHeightFt(feet);
+                    setHeightIn(inches);
+                    setHeightFtInput(String(feet));
+                    setHeightInInput(String(inches));
+                  }
                 }}
-                className="text-right bg-transparent font-bold text-xl text-white outline-none max-w-[120px]"
+                className="text-left bg-transparent font-bold text-xl text-white outline-none max-w-[120px]"
               />
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-2">
+              <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-start gap-2">
                 <span className="text-xs font-semibold text-slate-400">Feet</span>
                 <input
                   type="number"
-                  value={heightFt}
+                  value={heightFtInput}
                   onChange={(e) => {
-                    const v = parseInt(e.target.value) || 0;
-                    setHeightFt(v);
-                    setHeightCm(feetInchesToCm(v, heightIn));
+                    const raw = e.target.value;
+                    setHeightFtInput(raw);
+                    if (raw === "") return;
+                    const v = parseInt(raw);
+                    if (!isNaN(v)) {
+                      setHeightFt(v);
+                      setHeightCm(feetInchesToCm(v, heightIn));
+                    }
                   }}
-                  className="text-right bg-transparent font-bold text-xl text-white outline-none max-w-[60px]"
+                  className="text-left bg-transparent font-bold text-xl text-white outline-none max-w-[60px]"
                 />
               </div>
-              <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-2">
+              <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-start gap-2">
                 <span className="text-xs font-semibold text-slate-400">Inches</span>
                 <input
                   type="number"
-                  value={heightIn}
+                  value={heightInInput}
                   onChange={(e) => {
-                    const v = parseInt(e.target.value) || 0;
-                    setHeightIn(v);
-                    setHeightCm(feetInchesToCm(heightFt, v));
+                    const raw = e.target.value;
+                    setHeightInInput(raw);
+                    if (raw === "") return;
+                    const v = parseInt(raw);
+                    if (!isNaN(v)) {
+                      setHeightIn(v);
+                      setHeightCm(feetInchesToCm(heightFt, v));
+                    }
                   }}
-                  className="text-right bg-transparent font-bold text-xl text-white outline-none max-w-[60px]"
+                  className="text-left bg-transparent font-bold text-xl text-white outline-none max-w-[60px]"
                 />
               </div>
             </div>

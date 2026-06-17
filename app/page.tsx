@@ -28,15 +28,14 @@ export default function RootPage() {
           || "";
         const userEmail = session.user?.email || "";
 
-        const existingProfile = localStorage.getItem("arise_user_profile");
-        if (existingProfile) {
-          try {
-            const parsed = JSON.parse(existingProfile);
-            if (!parsed.name && userName) parsed.name = userName;
-            if (!parsed.email && userEmail) parsed.email = userEmail;
-            localStorage.setItem("arise_user_profile", JSON.stringify(parsed));
-          } catch {}
+        let existingProfile: Record<string, unknown> = {};
+        const stored = localStorage.getItem("arise_user_profile");
+        if (stored) {
+          try { existingProfile = JSON.parse(stored); } catch {}
         }
+        if (!existingProfile.name && userName) existingProfile.name = userName;
+        if (!existingProfile.email && userEmail) existingProfile.email = userEmail;
+        localStorage.setItem("arise_user_profile", JSON.stringify(existingProfile));
 
         // Try to fetch profile from backend
         try {
